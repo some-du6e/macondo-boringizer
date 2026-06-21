@@ -8,59 +8,24 @@ function betterShop() {
     // }
 
 
+    
+    function openProjectPopup(project) {
+        console.log("HCTG: opening project popup")
+        project.click()
+    }
+    
+    function dowierdprojectmagic(project) {
+        openProjectPopup(project)
+    }
     // get projects
-    // let projectContainer = document.getElementById("projects")
-    // let projects = {}
-
-    // for (let project of projectContainer.children) {
-    //     // get id
-
-
-    // }
-    
-    let NUXT_DATA = document.getElementById("__NUXT_DATA__")
-    if (!NUXT_DATA) {
-        console.error("HCTG: NUXT_DATA not found! ID:1s9f8g")
-        return
+    let projectContainer = document.getElementById("projects")
+    let projects = {}
+    for (let project of projectContainer.children) {
+        dowierdprojectmagic(project)
+        break
     }
-    let data = JSON.parse(NUXT_DATA.innerHTML)
-    console.log("hello", data)
-
-    let notshits = {}
-    let projectbuffer = {}
-    let projectSchema = {
-        "id": Number,
-        "title": String,
-    }
-
-
-    for (let i = 0; i < data.length; i++) {
-        let shit = data[i]
-        if (Number.isInteger(shit) && shit > 0 && typeof data[i + 1] === "string") {
-            notshits[shit] = data.slice(i + 1, i + 7)
-        }
-    }
-
-    console.log("notshits: ", notshits)
-
-
-
-
-    // skid test
-    function getProjectIdsFromFarmTiles(root = document) {
-    const ids = new Set();
-    Array.from(root.querySelectorAll("#projects .farm-tile-project a[href*='/projects/']")).forEach((link) => {
-      const href = link.getAttribute("href") || "";
-      const match = href.match(/\/projects\/(\d+)/);
-      if (match?.[1]) {
-        ids.add(String(match[1]));
-      }
-    });
-    return Array.from(ids).slice(0, 80);
-    }
-    
-    let gubby = getProjectIdsFromFarmTiles()
-    console.log("gub", gubby)
+    // todo: skid this https://github.com/hridaya423/macondoutils/blob/main/content.js#L1459
+        
 }
 
 window.addEventListener('pageChange', function() {
