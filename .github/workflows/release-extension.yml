@@ -1,0 +1,93 @@
+name: Release Chrome Extension
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish_to_store:
+        description: Publish stable build to Chrome Web Store
+        required: false
+        default: false
+        type: boolean
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set release metadata
+        id: release_meta
+        run: |
+          set -euo pipefail
+
+          COMMIT_MSG="$(git log -1 --pretty=%B | tr -d '\r')"
+          COMMIT_PREFIX_HEX="$(printf '%s' "$COMMIT_MSG" | xxd -p -l 4)"
+          TIMESTAMP="$(date -u +'%Y%m%d-%H%M%S')"
+          SHORT_SHA="${GITHUB_SHA::7}"
+
+          # Explicit manual publish requests should always package and publish a stable build.
+          if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.publish_to_store || 'false' }}" = "true" ]; then
+            echo "channel=stable" >> "${GITHUB_OUTPUT}"
+            echo "tag=stable-${TIMESTAMP}-${SHORT_SHA}" >> "${GITHUB_OUTPUT}"
+            echo "release_name=Stable ${TIMESTAMP} (${SHORT_SHA})" >> "${GITHUB_OUTPUT}"
+            echo "prerelease=false" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+
+          if [ "$COMMIT_PREFIX_HEX" = "f09f9a80" ]; then
+            echo "channel=stable" >> "${GITHUB_OUTPUT}"
+            echo "tag=stable-${TIMESTAMP}-${SHORT_SHA}" >> "${GITHUB_OUTPUT}"
+            echo "release_name=Stable ${TIMESTAMP} (${SHORT_SHA})" >> "${GITHUB_OUTPUT}"
+            echo "prerelease=false" >> "${GITHUB_OUTPUT}"
+          else
+            echo "channel=nightly" >> "${GITHUB_OUTPUT}"
+            echo "tag=nightly-${TIMESTAMP}-${SHORT_SHA}" >> "${GITHUB_OUTPUT}"
+            echo "release_name=Nightly ${TIMESTAMP} (${SHORT_SHA})" >> "${GITHUB_OUTPUT}"
+            echo "prerelease=true" >> "${GITHUB_OUTPUT}"
+          fi
+        shell: bash
+
+      - name: Build extension package
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p dist
+          cd src
+          zip -r "../dist/hctgplus-${{ steps.release_meta.outputs.channel }}.zip" \
+            manifest.json \
+            content.js \
+            service-worker.js \
+            snippet.html \
+            components \
+            icons
+
+      - name: Publish GitHub release
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          artifacts: dist/hctgplus-${{ steps.release_meta.outputs.channel }}.zip
+          generateReleaseNotes: true
+          makeLatest: ${{ steps.release_meta.outputs.channel == 'stable' && 'true' || 'false' }}
+          name: ${{ steps.release_meta.outputs.release_name }}
+          prerelease: ${{ steps.release_meta.outputs.prerelease }}
+          removeArtifacts: true
+          tag: ${{ steps.release_meta.outputs.tag }}
+
+      - name: Publish to Chrome Web Store
+        if: ${{ steps.release_meta.outputs.channel == 'stable' && github.event_name == 'workflow_dispatch' && github.event.inputs.publish_to_store == 'true' }}
+        uses: mobilefirstllc/cws-publish@latest
+        with:
+          action: publish
+          client_id: ${{ secrets.CHROME_CLIENT_ID }}
+          client_secret: ${{ secrets.CHROME_CLIENT_SECRET }}
+          extension_id: ${{ secrets.CHROME_EXTENSION_ID }}
+          refresh_token: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          zip_file: dist/hctgplus-${{ steps.release_meta.outputs.channel }}.zip
