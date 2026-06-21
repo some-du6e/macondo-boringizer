@@ -10,36 +10,11 @@
   },
   "content_scripts": [
     {
-      "matches": ["*://game.hackclub.com/*"],
+      "matches": ["*://macondo.hackclub.com/*"],
       "js": [
-        "components/consts.js",
-        "components/data.js",
-        "components/goals.js",
-        "components/otherpersonprojectviewer.js",
-        "components/sidebar.js",
-        "components/shop.js",
-        "components/projects.js",
-        "components/gallery.js",
-        "components/lander.js",
-        "components/settings.js",
-        "components/notifications.js",
-        "components/larp_reviewer.js",
-        "components/larping_reviewing.js"
+        "components/homepage.js"
       ],
       "run_at": "document_idle"
-    },
-
-    {
-      "matches": ["*://*.game.hackclub.com/*"],
-      "js": ["components/utils.js"],
-      "run_at": "document_end",
-      "world": "MAIN"
-    },
-    {
-      "matches": ["*://*.game.hackclub.com/*"],
-      "js": ["components/larping.js"],
-      "run_at": "document_start",
-      "world": "MAIN"
     }
   ],
   "host_permissions": ["<all_urls>"],
