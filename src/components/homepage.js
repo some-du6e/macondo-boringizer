@@ -42,6 +42,25 @@ function betterShop() {
     }
 
     console.log("notshits: ", notshits)
+
+
+
+
+    // skid test
+    function getProjectIdsFromFarmTiles(root = document) {
+    const ids = new Set();
+    Array.from(root.querySelectorAll("#projects .farm-tile-project a[href*='/projects/']")).forEach((link) => {
+      const href = link.getAttribute("href") || "";
+      const match = href.match(/\/projects\/(\d+)/);
+      if (match?.[1]) {
+        ids.add(String(match[1]));
+      }
+    });
+    return Array.from(ids).slice(0, 80);
+    }
+    
+    let gubby = getProjectIdsFromFarmTiles()
+    console.log("gub", gubby)
 }
 
 window.addEventListener('pageChange', function() {
