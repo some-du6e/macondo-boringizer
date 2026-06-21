@@ -211,6 +211,7 @@ function homepagething() {
         if (existingPfp) {
             existingPfp.href = "/profile"
             existingPfp.dataset.macondoProfileLinkReady = "true"
+            existingPfp.addEventListener("click", openProfilePopup)
             existingPfp.style.order = "-1"
             let existingImage = existingPfp.querySelector("img")
             if (existingImage && existingImage.src !== pfpUrl) {
@@ -224,6 +225,7 @@ function homepagething() {
         pfp.className = "w-10 h-10 rounded-full overflow-hidden border-2 border-ds-brown/40 shrink-0"
         pfp.href = "/profile"
         pfp.dataset.macondoProfileLinkReady = "true"
+        pfp.addEventListener("click", openProfilePopup)
         pfp.style.order = "-1"
 
         let img = document.createElement("img")
@@ -299,6 +301,75 @@ function homepagething() {
             })
 
         return info
+    }
+
+    function isProfileModalOpen() {
+        return !!document.querySelector(".modal-frame")
+    }
+
+    function findProfileOpener() {
+        return Array.from(document.querySelectorAll("button")).find(function(button) {
+            return button.textContent.trim() === "Open your profile"
+        })
+    }
+
+    function openProfilePopup(event) {
+        if (event && (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)) {
+            return
+        }
+
+        if (event) {
+            event.preventDefault()
+        }
+
+        console.log("macondo: opening profile popup")
+        if (isProfileModalOpen()) { return }
+
+        let gameWorld = document.querySelector(".game-world")
+        let oldGameWorldState = null
+        if (gameWorld) {
+            oldGameWorldState = {
+                hidden: gameWorld.hidden,
+                opacity: gameWorld.style.opacity,
+                pointerEvents: gameWorld.style.pointerEvents
+            }
+            gameWorld.hidden = false
+            gameWorld.style.opacity = "0"
+            gameWorld.style.pointerEvents = "none"
+        }
+
+        let opener = findProfileOpener()
+        if (!opener) {
+            console.warn("macondo: profile opener not found; going to profile page")
+            window.location.assign("/profile")
+            return
+        }
+
+        function restoreGameWorldForModal() {
+            if (!gameWorld || !oldGameWorldState) { return }
+            gameWorld.style.opacity = oldGameWorldState.opacity
+            gameWorld.style.pointerEvents = oldGameWorldState.pointerEvents
+        }
+
+        function restoreGameWorldAfterFailure() {
+            if (!gameWorld || !oldGameWorldState) { return }
+            gameWorld.hidden = oldGameWorldState.hidden
+            gameWorld.style.opacity = oldGameWorldState.opacity
+            gameWorld.style.pointerEvents = oldGameWorldState.pointerEvents
+        }
+
+        opener.click()
+        setTimeout(function() {
+            if (isProfileModalOpen()) {
+                restoreGameWorldForModal()
+                return
+            }
+
+            restoreGameWorldAfterFailure()
+
+            console.warn("macondo: profile popup did not open; going to profile page")
+            window.location.assign("/profile")
+        }, 400)
     }
 
     function doTopbarstuff() {
