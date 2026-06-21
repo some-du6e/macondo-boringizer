@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "HCTG+",
-  "description": "better game.hackclub.com",
-  "version": "1.1.0",
+  "name": "Macondo boringizer+",
+  "description": "better macondo.hackclub.com",
+  "version": "0.1",
   "browser_specific_settings": {
     "gecko": {
       "id": "kdndfafcpodecbbjhoicneekmbdhhckm@chromeisbetter"
@@ -11,9 +11,7 @@
   "content_scripts": [
     {
       "matches": ["*://macondo.hackclub.com/*"],
-      "js": [
-        "components/homepage.js"
-      ],
+      "js": ["components/homepage.js"],
       "run_at": "document_idle"
     }
   ],
