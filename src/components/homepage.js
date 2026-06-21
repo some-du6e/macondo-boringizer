@@ -1,8 +1,8 @@
-function betterShop() {
+function homepagething() {
     window.macondo = window.macondo || {}
     if (location.pathname !== "/dashboard") { return }
-    if (window.macondo.betterShopObserver) { return }
-    console.log("macondo+: betterShop running")
+    if (window.macondo.homepagethingObserver) { return }
+    console.log("macondo+: homepagething running")
     // if (!window.macondo.datapage) {
     //     console.error("macondo: datapage not found! ID:1s9f8g")
     //     return
@@ -194,7 +194,8 @@ function betterShop() {
         let pfp = document.createElement("a")
         pfp.id = "macondo-boringizer-pfp"
         pfp.className = "w-10 h-10 rounded-full overflow-hidden border-2 border-ds-brown/40 shrink-0"
-        pfp.href = "/profile"
+        pfp.href = "javascript:void(0)"
+        pfp.onclick = openProfilePopup
         pfp.style.order = "-1"
 
         let img = document.createElement("img")
@@ -206,6 +207,48 @@ function betterShop() {
         return pfp
 
     }
+
+    function openPopup(thing) {
+        console.log("macondo: opening popup", thing)
+        if (thing === "profile") {
+            let profileButton = Array.from(document.querySelectorAll("button")).find(function(button) {
+                return button.textContent.trim() === "Open your profile"
+            })
+            if (profileButton) {
+                profileButton.click()
+                return
+            }
+
+            let game_world = document.querySelector(".game-world")
+            if (!game_world) {
+                console.error("macondo: game world not found! ID:1s9f8g")
+                return
+            }
+
+            game_world.hidden = false
+            game_world.style.position = "fixed"
+            game_world.style.inset = "0"
+            game_world.style.zIndex = "9999"
+            game_world.style.pointerEvents = "auto"
+
+            let house = game_world.querySelector(".house-area")
+            if (house) {
+                house.click()
+            } else {
+                console.error("macondo: house area not found! ID:1s9f8g")
+            }
+        }
+
+
+
+        // game_world.hidden = true
+    }
+
+
+    function openProfilePopup() {
+        openPopup("profile")
+    }
+
     function doTopbarstuff() {
         let topbar = document.getElementById("macondo-boringizer-topbar") || document.getElementsByClassName("absolute top-0 left-0 right-0 z-[100] pointer-events-none")[0]
         if (!topbar) { console.error("boring: topbar not found! ID:1s9f8g"); return }
@@ -228,18 +271,18 @@ function betterShop() {
     syncDashboard()
 
     let syncTimeout
-    window.macondo.betterShopObserver = new MutationObserver(function() {
+    window.macondo.homepagethingObserver = new MutationObserver(function() {
         clearTimeout(syncTimeout)
         syncTimeout = setTimeout(syncDashboard, 50)
     })
-    window.macondo.betterShopObserver.observe(document.body, {
+    window.macondo.homepagethingObserver.observe(document.body, {
         childList: true,
         subtree: true
     })
 }
 
 window.addEventListener('pageChange', function() {
-    setTimeout(betterShop, 200)
+    setTimeout(homepagething, 200)
 });
 
-setTimeout(betterShop, 200)
+setTimeout(homepagething, 200)
