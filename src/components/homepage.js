@@ -184,14 +184,44 @@ function betterShop() {
         doTopbarstuff()
     }
 
+    function makepfp() {
+        let existingPfp = document.getElementById("macondo-boringizer-pfp")
+        if (existingPfp) {
+            existingPfp.style.order = "-1"
+            return existingPfp
+        }
 
+        let pfp = document.createElement("a")
+        pfp.id = "macondo-boringizer-pfp"
+        pfp.className = "w-10 h-10 rounded-full overflow-hidden border-2 border-ds-brown/40 shrink-0"
+        pfp.href = "/profile"
+        pfp.style.order = "-1"
+
+        let img = document.createElement("img")
+        img.src = "https://l4.dunkirk.sh/i/5DjfoBI58Pfw.webp" // todo pfp
+        img.alt = "Profile"
+        img.className = "w-full h-full object-cover"
+
+        pfp.appendChild(img)
+        return pfp
+
+    }
     function doTopbarstuff() {
-        let topbar = document.getElementsByClassName("absolute top-0 left-0 right-0 z-[100] pointer-events-none")[0]
+        let topbar = document.getElementById("macondo-boringizer-topbar") || document.getElementsByClassName("absolute top-0 left-0 right-0 z-[100] pointer-events-none")[0]
         if (!topbar) { console.error("boring: topbar not found! ID:1s9f8g"); return }
 
         topbar.id = "macondo-boringizer-topbar"
 
         topbar.classList.remove("absolute")
+        topbar.classList.remove("pointer-events-none")
+
+        let leftside = topbar.children[0].children[0]
+        leftside.id = "macondo-boringizer-leftside"
+
+        let pfp = makepfp()
+        if (pfp.parentElement !== leftside) {
+            leftside.appendChild(pfp)
+        }
 
     }
 
