@@ -1,21 +1,25 @@
 function betterShop() {
-    window.HCTG = window.HCTG || {}
+    window.macondo = window.macondo || {}
     if (location.pathname !== "/dashboard") { return }
-    console.log("HCTG+: betterShop running")
-    // if (!window.HCTG.datapage) {
-    //     console.error("HCTG: datapage not found! ID:1s9f8g")
+    if (window.macondo.betterShopObserver) { return }
+    console.log("macondo+: betterShop running")
+    // if (!window.macondo.datapage) {
+    //     console.error("macondo: datapage not found! ID:1s9f8g")
     //     return
     // }
 
 
     
     let projects = {}
+    let customProjectsId = "macondo-boringizer-projects"
 
-    let mainContainer = document.getElementsByClassName("fixed inset-0 overflow-hidden bg-parchment")[0]
+    function getMainContainer() {
+        return document.getElementsByClassName("fixed inset-0 overflow-hidden bg-parchment")[0]
+    }
 
     function getProjects() {
         function openProjectPopup(project) {
-            console.log("HCTG: opening project popup")
+            console.log("macondo: opening project popup")
             project.click()
         }
     
@@ -30,7 +34,8 @@ function betterShop() {
             break
         }
         // todo: skid this https://github.com/hridaya423/macondoutils/blob/main/content.js#L1459
-        
+        // todo: investigate https://macondo.hackclub.com/api/profile/streaks
+        // maybe works without anything funky? just a fetch?
     }
 
 
@@ -43,7 +48,7 @@ function betterShop() {
 
     function projectCard(project) {
         let card = document.createElement("div")
-        card.className = "group flex flex-col h-full bg-parchment border-[3px] border-ds-brown/20 hover:border-ds-brown/60 cursor-pointer transition-colors"
+        card.className = "group flex min-h-0 flex-col bg-parchment border-[3px] border-ds-brown/20 hover:border-ds-brown/60 cursor-pointer transition-colors"
         let cardContent = `
   <div
     class="relative aspect-[16/10] bg-ds-brown/10 overflow-hidden border-b-[3px] border-ds-brown/10">
@@ -147,23 +152,60 @@ function betterShop() {
 
 
     function prepareDashboard() {
-        let gameword = document.querySelector(".game-world")
-        gameword.hidden = true
+        let mainContainer = getMainContainer()
+        if (mainContainer) {
+            mainContainer.style.overflowY = "auto"
+            mainContainer.style.overflowX = "hidden"
+        }
 
-        
+        let gameword = document.querySelector(".game-world")
+        if (gameword) {
+            gameword.hidden = true
+        }
     }
 
     function renderProjects() {
+        let mainContainer = getMainContainer()
+        if (!mainContainer || document.getElementById(customProjectsId)) { return }
+
         let projectsContainer = document.createElement("div")
-        projectsContainer.className = "mt-4 flex flex-col gap-4"
+        projectsContainer.id = customProjectsId
+        projectsContainer.className = "relative z-10 mx-4 mt-28 mb-32 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-rows-max gap-4"
         for (let i = 0; i < 5; i++) {
             projectsContainer.appendChild(projectCard())
         }
         mainContainer.appendChild(projectsContainer)
     }
 
-    prepareDashboard()
-    renderProjects()
+    function syncDashboard() {
+        if (location.pathname !== "/dashboard") { return }
+        prepareDashboard()
+        renderProjects()
+        doTopbarstuff()
+    }
+
+
+    function doTopbarstuff() {
+        let topbar = document.getElementsByClassName("absolute top-0 left-0 right-0 z-[100] pointer-events-none")[0]
+        if (!topbar) { console.error("boring: topbar not found! ID:1s9f8g"); return }
+
+        topbar.id = "macondo-boringizer-topbar"
+
+        topbar.classList.remove("absolute")
+
+    }
+
+    syncDashboard()
+
+    let syncTimeout
+    window.macondo.betterShopObserver = new MutationObserver(function() {
+        clearTimeout(syncTimeout)
+        syncTimeout = setTimeout(syncDashboard, 50)
+    })
+    window.macondo.betterShopObserver.observe(document.body, {
+        childList: true,
+        subtree: true
+    })
 }
 
 window.addEventListener('pageChange', function() {
