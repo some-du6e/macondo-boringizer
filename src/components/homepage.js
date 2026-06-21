@@ -12,6 +12,14 @@ function homepagething() {
     
     let projects = {}
     let customProjectsId = "macondo-boringizer-projects"
+    let information = {
+        "user": {
+            "name": "not found",
+            "pfp": "https://cachet.dunkirk.sh/users/U091HC53CE8/r"
+        },
+        "projects": []
+    }
+    let didTryGetInfo = false
 
     function getMainContainer() {
         return document.getElementsByClassName("fixed inset-0 overflow-hidden bg-parchment")[0]
@@ -180,14 +188,23 @@ function homepagething() {
     function syncDashboard() {
         if (location.pathname !== "/dashboard") { return }
         prepareDashboard()
+        if (!didTryGetInfo) {
+            getInfo()
+        }
         renderProjects()
         doTopbarstuff()
+        
     }
 
     function makepfp() {
+        let pfpUrl = information.user && information.user.pfp ? information.user.pfp : "https://cachet.dunkirk.sh/users/U091HC53CE8/r"
         let existingPfp = document.getElementById("macondo-boringizer-pfp")
         if (existingPfp) {
             existingPfp.style.order = "-1"
+            let existingImage = existingPfp.querySelector("img")
+            if (existingImage && existingImage.src !== pfpUrl) {
+                existingImage.src = pfpUrl
+            }
             return existingPfp
         }
 
@@ -199,7 +216,7 @@ function homepagething() {
         pfp.style.order = "-1"
 
         let img = document.createElement("img")
-        img.src = "https://l4.dunkirk.sh/i/5DjfoBI58Pfw.webp" // todo pfp
+        img.src = pfpUrl
         img.alt = "Profile"
         img.className = "w-full h-full object-cover"
 
@@ -208,35 +225,123 @@ function homepagething() {
 
     }
 
+    function getInfo() {
+        didTryGetInfo = true
+        let info = {
+            "user": {
+                "name": "not found",
+                "pfp": "https://cachet.dunkirk.sh/users/U091HC53CE8/r"
+            },
+            "projects": []
+        }
+
+        function findImageUrl(value) {
+            if (!value) { return null }
+            if (typeof value === "string") {
+                if (/^https?:\/\/.+\.(webp|png|jpe?g|gif)(\?.*)?$/i.test(value) || value.includes("cachet.dunkirk.sh") || value.includes("l4.dunkirk.sh")) {
+                    return value
+                }
+                return null
+            }
+            if (Array.isArray(value)) {
+                for (let item of value) {
+                    let found = findImageUrl(item)
+                    if (found) { return found }
+                }
+                return null
+            }
+            if (typeof value === "object") {
+                let likelyKeys = ["pfp", "avatar", "avatarUrl", "avatar_url", "image", "imageUrl", "image_url", "photo", "photoUrl", "photo_url", "picture"]
+                for (let key of likelyKeys) {
+                    let found = findImageUrl(value[key])
+                    if (found) { return found }
+                }
+                for (let key of Object.keys(value)) {
+                    let found = findImageUrl(value[key])
+                    if (found) { return found }
+                }
+            }
+            return null
+        }
+
+        fetch("/api/auth/me", { credentials: "include" })
+            .then(function(response) {
+                if (!response.ok) {
+                    throw new Error("auth/me returned " + response.status)
+                }
+                return response.json()
+            })
+            .then(function(userInfo) {
+                let pfp = findImageUrl(userInfo)
+                if (pfp) {
+                    info.user.pfp = pfp
+                } else {
+                    console.warn("macondo: no profile image found in /api/auth/me", userInfo)
+                }
+                information = info
+                doTopbarstuff()
+            })
+            .catch(function(error) {
+                console.warn("macondo: could not fetch profile info; using default profile", error)
+                information = info
+                doTopbarstuff()
+            })
+
+        return info
+    }
+
+
     function openPopup(thing) {
         console.log("macondo: opening popup", thing)
         if (thing === "profile") {
-            let profileButton = Array.from(document.querySelectorAll("button")).find(function(button) {
-                return button.textContent.trim() === "Open your profile"
-            })
-            if (profileButton) {
-                profileButton.click()
-                return
+            function isVisible(element) {
+                let rect = element.getBoundingClientRect()
+                return rect.width > 0 && rect.height > 0
+            }
+
+            function clickHouse() {
+                if (!game_world) {
+                    console.error("macondo: game world not found! ID:1s9f8g")
+                    return false
+                }
+
+                let house = game_world.querySelector(".house-area")
+                if (house) {
+                    console.log("macondo: clicking house area")
+                    house.click()
+                    return true
+                }
+
+                console.error("macondo: house area not found! ID:1s9f8g")
+                return false
             }
 
             let game_world = document.querySelector(".game-world")
-            if (!game_world) {
-                console.error("macondo: game world not found! ID:1s9f8g")
+            if (game_world) {
+                game_world.hidden = false
+                game_world.style.position = "fixed"
+                game_world.style.inset = "0"
+                game_world.style.zIndex = "9999"
+                game_world.style.pointerEvents = "auto"
+            }
+
+            let profileButton = Array.from(document.querySelectorAll("button")).find(function(button) {
+                return button.textContent.trim() === "Open your profile" && isVisible(button)
+            })
+            if (profileButton) {
+                console.log("macondo: clicking profile button")
+                profileButton.click()
+                setTimeout(function() {
+                    let profilecontainer1 = document.getElementsByClassName("flex items-center gap-5 pb-4 border-b-2 border-ds-brown")[0]
+                    if (!profilecontainer1) {
+                        console.warn("macondo: profile button did not open modal; trying house area")
+                        clickHouse()
+                    }
+                }, 300)
                 return
             }
 
-            game_world.hidden = false
-            game_world.style.position = "fixed"
-            game_world.style.inset = "0"
-            game_world.style.zIndex = "9999"
-            game_world.style.pointerEvents = "auto"
-
-            let house = game_world.querySelector(".house-area")
-            if (house) {
-                house.click()
-            } else {
-                console.error("macondo: house area not found! ID:1s9f8g")
-            }
+            clickHouse()
         }
 
 
@@ -244,7 +349,23 @@ function homepagething() {
         // game_world.hidden = true
     }
 
+    function closePopup() {
+        console.log("macondo: closing popup")
 
+        let popup = document.getElementsByClassName("relative pl-5 pt-4 pr-6 pb-6 flex flex-col modal-frame relative w-full max-w-6xl mx-4 pointer-events-auto max-h-[90vh]")[0]
+        if (!popup) {
+            console.warn("macondo: popup not found; cannot close")
+            return
+        }
+
+        let close_button = popup.getElementsByClassName("text-sm text-ds-brown flex items-center gap-1 hover:opacity-70 transition-opacity")[0]
+        if (!close_button) {
+            console.warn("macondo: popup close button not found")
+            return
+        }
+
+        close_button.click()
+    }
     function openProfilePopup() {
         openPopup("profile")
     }
