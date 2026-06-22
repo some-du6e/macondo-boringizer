@@ -41,9 +41,189 @@ function homepagething() {
     ]
     let didTryGetInfo = false
     let renderedProjectsKey = ""
+    let linkedFarmAreasKey = ""
+    let isLinkingFarmAreas = false
+    // TODO: show a small loading spinner while farm links are being resolved.
+    // It can be considered done when isLinkingFarmAreas is false and
+    // linkedFarmAreasKey matches the current farm tile/project key.
 
     function getMainContainer() {
         return document.getElementsByClassName("fixed inset-0 overflow-hidden bg-parchment")[0]
+    }
+
+    function wait(ms) {
+        return new Promise(function(resolve) {
+            setTimeout(resolve, ms)
+        })
+    }
+
+    function farmContextMenu() {
+        return document.getElementsByClassName("fixed bg-parchment border-[3px] border-ds-brown shadow-xl w-52 py-1")[0] || null
+    }
+
+    async function closeFarmContextMenu() {
+        let contextMenu = farmContextMenu()
+        if (!contextMenu) { return }
+
+        document.dispatchEvent(new KeyboardEvent("keydown", {
+            bubbles: true,
+            cancelable: true,
+            key: "Escape",
+            code: "Escape"
+        }))
+        await wait(20)
+
+        if (!farmContextMenu()) { return }
+
+        let menuRect = contextMenu.getBoundingClientRect()
+        let clickX = menuRect.right + 20
+        let clickY = menuRect.top + 20
+        if (clickX >= window.innerWidth) {
+            clickX = Math.max(1, menuRect.left - 20)
+        }
+        if (clickY >= window.innerHeight) {
+            clickY = Math.max(1, menuRect.top - 20)
+        }
+
+        let clickTarget = document.elementFromPoint(clickX, clickY) || document.body
+        clickTarget.dispatchEvent(new PointerEvent("pointerdown", {
+            bubbles: true,
+            cancelable: true,
+            pointerId: 1,
+            pointerType: "mouse",
+            isPrimary: true,
+            button: 0,
+            buttons: 1,
+            clientX: clickX,
+            clientY: clickY
+        }))
+        clickTarget.dispatchEvent(new MouseEvent("mousedown", {
+            bubbles: true,
+            cancelable: true,
+            button: 0,
+            buttons: 1,
+            clientX: clickX,
+            clientY: clickY
+        }))
+        clickTarget.dispatchEvent(new PointerEvent("pointerup", {
+            bubbles: true,
+            cancelable: true,
+            pointerId: 1,
+            pointerType: "mouse",
+            isPrimary: true,
+            button: 0,
+            clientX: clickX,
+            clientY: clickY
+        }))
+        clickTarget.dispatchEvent(new MouseEvent("mouseup", {
+            bubbles: true,
+            cancelable: true,
+            button: 0,
+            clientX: clickX,
+            clientY: clickY
+        }))
+        clickTarget.dispatchEvent(new MouseEvent("click", {
+            bubbles: true,
+            cancelable: true,
+            button: 0,
+            clientX: clickX,
+            clientY: clickY
+        }))
+        await wait(20)
+    }
+
+    async function rightclickandextractfarmtile(tile, justrightclick, x, y) {
+        if (justrightclick) {
+            tile.dispatchEvent(new MouseEvent('contextmenu', {
+                bubbles: true,
+                cancelable: true,
+                button: 2,
+                buttons: 2,
+                clientX: x,
+                clientY: y,
+            }));
+            return null
+        }
+
+        await closeFarmContextMenu()
+
+        let rect = tile.getBoundingClientRect()
+        tile.dispatchEvent(new MouseEvent('contextmenu', {
+            bubbles: true,
+            cancelable: true,
+            button: 2,
+            buttons: 2,
+            clientX: x == null ? rect.left + rect.width / 2 : x,
+            clientY: y == null ? rect.top + rect.height / 2 : y,
+        }));
+
+        await wait(50)
+
+        let contextMenu = farmContextMenu()
+        if (!contextMenu) { return null }
+
+        let nameElement = contextMenu.getElementsByClassName("px-3 py-1.5 text-xs font-bold text-ds-brown/60 truncate")[0]
+        let projectName = nameElement ? nameElement.textContent.trim() : null
+
+        await closeFarmContextMenu()
+
+        return projectName || null
+    }
+
+    async function linkFarmAreasToProjects() {
+        if (isLinkingFarmAreas) { return }
+
+        let areas = document.getElementsByClassName("farm-tile-project")
+        let projectList = information.projects || []
+        let linkKey = Array.from(areas).map(function(area) {
+            return [
+                area.style.left,
+                area.style.top,
+                area.getAttribute("data-macondo-project-id") || ""
+            ].join(",")
+        }).join("|") + "::" + projectList.map(function(project) {
+            return project.id || project.name || ""
+        }).join("|")
+
+        if (linkKey === linkedFarmAreasKey) { return }
+
+        isLinkingFarmAreas = true
+
+        try {
+            for (let i = 0; i < areas.length; i++) {
+                let area = areas[i]
+                let fallbackProject = projectList[i] || null
+                let projectName = await rightclickandextractfarmtile(area) || (fallbackProject ? fallbackProject.name : null)
+                if (!projectName) {
+                    area.removeAttribute("data-macondo-project-name")
+                    area.removeAttribute("data-macondo-project-id")
+                    continue
+                }
+
+                area.setAttribute("data-macondo-project-name", projectName)
+                area.removeAttribute("data-macondo-project-id")
+                
+                for (let project in projectList) {
+                    if (projectList[project].name === projectName) {
+                        area.setAttribute("data-macondo-project-id", projectList[project].id)
+                        break
+                    }
+                }
+            }
+
+            linkedFarmAreasKey = Array.from(areas).map(function(area) {
+                return [
+                    area.style.left,
+                    area.style.top,
+                    area.getAttribute("data-macondo-project-id") || ""
+                ].join(",")
+            }).join("|") + "::" + projectList.map(function(project) {
+                return project.id || project.name || ""
+            }).join("|")
+        } finally {
+            await closeFarmContextMenu()
+            isLinkingFarmAreas = false
+        }
     }
 
     function convertfruittoshit(fruit) {
@@ -413,6 +593,7 @@ function homepagething() {
                 info.projects = projectsData.projects || []
                 information = info
                 renderProjects()
+                linkFarmAreasToProjects()
             })
             .catch(function(error) {
                 console.warn("macondo: could not fetch profile/projects info; using default", error)
