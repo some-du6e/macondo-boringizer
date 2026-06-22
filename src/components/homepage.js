@@ -81,7 +81,7 @@ function homepagething() {
         let projectType = project.type || "software"
         let projectLevel = project.level || "1"
         let projectVotes = project.votes || project.upvotes || 0
-        let projectImage = project.thumbnail_url || "https://cdn.hackclub.com/019ef10d-99ef-745b-884e-dbfbff62a87b/mdrc5gt.png"
+        let projectImage = project.thumbnail_url || null
         let projectFruit = project.fruit || "Papaya"
         let fruitSlug = convertfruittoshit(String(projectFruit))
         let projectStreak = project.project_streak_days || null
@@ -96,16 +96,20 @@ function homepagething() {
         projectStreak = escapeHtml(projectStreak)
         projectFruit = escapeHtml(projectFruit)
         fruitSlug = escapeHtml(fruitSlug)
+
+        let image = ``
+        if (projectImage) {
+            image = `<img src="${projectImage}" alt="Macondo boringizer" class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy">`
+        } else {
+            image = `<div class="absolute inset-0 flex items-center justify-center text-xs text-ds-brown/40 font-semibold uppercase tracking-wider">No thumbnail</div>`
+        }
+        
         let card = document.createElement("div")
         card.className = "group flex min-h-0 flex-col bg-parchment border-[3px] border-ds-brown/20 hover:border-ds-brown/60 cursor-pointer transition-colors"
         let cardContent = `
   <div
     class="relative aspect-[16/10] bg-ds-brown/10 overflow-hidden border-b-[3px] border-ds-brown/10">
-    <img
-      src="${projectImage}"
-      alt="${projectName}"
-      class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-      loading="lazy" />
+    ${image}
     <div
       class="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 bg-parchment/95 border-2 border-ds-brown text-xs font-bold text-ds-brown">
       <svg
