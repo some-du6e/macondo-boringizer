@@ -20,6 +20,11 @@ Install from the [webstore](https://chromewebstore.google.com/detail/hctg+/kdndf
 4. Click `Load unpacked` and select the unzipped file
 5. Done
 
+## API
+
+See [API.md](API.md) for notes on Macondo's real project API, including
+`GET /api/projects/{id}` for fetching project name, level, and description.
+
 ## Features
 
 ### `consts.js`
