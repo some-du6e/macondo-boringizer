@@ -262,16 +262,25 @@ function homepagething() {
             plant: "not found",
             stage: "not found",
             description: "not found",
-            img: "not found"
+            img: "not found",
+            type: "not found",
+            status: "not found"
         }
         
 
         let projectHref = projectElement.href
         console.log("project href", projectHref)
-        let id = projectHref.split("/")[1]
-        console.log(id)
+        let id = String(projectHref).split("/")[4]
+        project.id = id
 
-        console.log(project.id)
+
+        let nameelement = projectElement.children.at(-1)
+        
+
+
+        let imgimg = projectElement.children[0]
+        let img = imgimg ? imgimg.src : null // todo check slack
+        project.img = img
 
         console.log(project)
         return project
