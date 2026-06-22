@@ -9,7 +9,7 @@ function homepagething() {
     // }
 
 
-    
+
     let projects = {}
     let customProjectsId = "macondo-boringizer-projects"
     let defaultProfilePfp = "https://cachet.dunkirk.sh/users/U091HC53CE8/r"
@@ -23,14 +23,14 @@ function homepagething() {
     let placeholderProjects = [
         {
             "id": "placeholder-1",
-            "name": "WAIT MF", // TODO: loading bar
-            "author": "Levi",
-            "description": "A 2D Action & Adventure RPG",
+            "name": "YO PLEASE WAIT", // TODO: loading bar
+            "author": "",
+            "description": "im loading yo shi gng wait a sec",
             "status": "Shipped",
             "type": "software",
             "level": "3",
             "votes": 8,
-            "image": "https://cdn.hackclub.com/019e83fe-d2d9-70e3-ace2-68fc80d4b1d6/Screenshot%202026-06-01%20192216.png",
+            "image": "https://media.tenor.com/WX_LDjYUrMsAAAAi/loading.gif",
             "pfp": "https://l4.dunkirk.sh/i/5DjfoBI58Pfw.webp",
             "fruit": "Papaya"
         }
@@ -130,6 +130,7 @@ function homepagething() {
       ${projectDescription}
     </p>
     <div class="flex items-center justify-between gap-2 mt-1">
+      <!--
       <button
         type="button"
         class="flex items-center gap-2 min-w-0 hover:opacity-70 transition-opacity">
@@ -140,7 +141,8 @@ function homepagething() {
             class="w-full h-full object-cover" />
         </div>
         <span class="text-xs text-ds-brown/80 truncate">${projectAuthor}</span>
-      </button>
+      </button> TODO: not necessary... have to check tho
+        -->
       <div class="flex items-center gap-1 shrink-0">
         <span
           class="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-ds-success text-parchment">
@@ -157,7 +159,7 @@ function homepagething() {
       </div>
     </div>
     <div class="flex items-center justify-between gap-2 mt-auto pt-2 border-t-2 border-ds-brown/10">
-      <!-- 
+      <!--
       <button
         type="button"
         class="flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold border-2 transition-colors bg-parchment text-ds-brown border-ds-brown/40 hover:border-ds-brown"
@@ -179,7 +181,7 @@ function homepagething() {
         </svg>
         <span class="tabular-nums">${projectVotes}</span>
       </button> TODO: check if project.votes is real or if codex hallucinated it
-      
+
       --->
       <span class="text-[10px] text-ds-brown/40 uppercase tracking-wider">View project</span>
     </div>
@@ -188,7 +190,7 @@ function homepagething() {
         `
         card.innerHTML = cardContent
         return card
-    } 
+    }
 
 
 
@@ -240,7 +242,7 @@ function homepagething() {
         }
         renderProjects()
         doTopbarstuff()
-        
+
     }
     function closePopup() {
         console.log("macondo: closing popup")
@@ -314,7 +316,7 @@ function homepagething() {
             type: "not found",
             status: "not found"
         }
-        
+
 
         let projectHref = projectElement.href
         console.log("project href", projectHref)
@@ -396,7 +398,7 @@ function homepagething() {
                 doTopbarstuff()
             })
 
-        
+
 
 
         fetch("/api/projects", { credentials: "include" })
@@ -416,7 +418,7 @@ function homepagething() {
                 information = info
                 doTopbarstuff()
             })
-        
+
         console.log(info)
         return info
     }
