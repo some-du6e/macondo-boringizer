@@ -42,26 +42,6 @@ function homepagething() {
         return document.getElementsByClassName("fixed inset-0 overflow-hidden bg-parchment")[0]
     }
 
-    function getProjects() {
-        function openProjectPopup(project) {
-            console.log("macondo: opening project popup")
-            project.click()
-        }
-    
-        function dowierdprojectmagic(project) {
-            openProjectPopup(project)
-        }
-        // get projects
-        let projectContainer = document.getElementById("projects")
-        let projects = {}
-        for (let project of projectContainer.children) {
-            dowierdprojectmagic(project)
-            break
-        }
-        // todo: skid this https://github.com/hridaya423/macondoutils/blob/main/content.js#L1459
-        // todo: investigate https://macondo.hackclub.com/api/profile/streaks
-        // maybe works without anything funky? just a fetch?
-    }
 
 
     function escapeHtml(value) {
@@ -177,6 +157,7 @@ function homepagething() {
       </div>
     </div>
     <div class="flex items-center justify-between gap-2 mt-auto pt-2 border-t-2 border-ds-brown/10">
+      <!-- 
       <button
         type="button"
         class="flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold border-2 transition-colors bg-parchment text-ds-brown border-ds-brown/40 hover:border-ds-brown"
@@ -197,7 +178,9 @@ function homepagething() {
           <path d="m18 15-6-6-6 6"></path>
         </svg>
         <span class="tabular-nums">${projectVotes}</span>
-      </button>
+      </button> TODO: check if project.votes is real or if codex hallucinated it
+      
+      --->
       <span class="text-[10px] text-ds-brown/40 uppercase tracking-wider">View project</span>
     </div>
   </div>
