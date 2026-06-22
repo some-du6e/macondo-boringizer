@@ -10,6 +10,10 @@ function homepagething() {
 
 
 
+    // shi to skid
+    // https://github.com/SabioOfficial/MacondoPlus
+    // utils
+
     let projects = {}
     let customProjectsId = "macondo-boringizer-projects"
     let defaultProfilePfp = "https://cachet.dunkirk.sh/users/U091HC53CE8/r"
@@ -42,7 +46,14 @@ function homepagething() {
         return document.getElementsByClassName("fixed inset-0 overflow-hidden bg-parchment")[0]
     }
 
+    function convertfruittoshit(fruit) {
+        if (fruit == "Papaya") { return "papaya/icon_interior.webp" }
+        if (fruit == "Coconut") { return "coco/icon_interior.webp"}
 
+        if (fruit == "Pineapple") { return "pineapple/icon.webp"}
+        if (fruit == "Mango") { return "mango/icon.webp" }
+        
+    }
 
     function escapeHtml(value) {
         return String(value == null ? "" : value)
@@ -64,25 +75,25 @@ function homepagething() {
     function projectCard(project) {
         project = project || {}
         let projectName = project.name || "Untitled project"
-        let projectAuthor = project.author || (project.owner && (project.owner.username || project.owner.name)) || information.user.name || "Macondo"
         let projectDescription = project.description || "No description yet."
-        let projectStatus = project.status || (project.stage === 1 ? "Building" : "Shipped")
+        let projectStatus = project.has_shipped ? "Shipped" : "In Progress" 
+        let projectStatusColor = projectStatus == "In Progress" ? "bg-ds-warning text-ds-brown" : ""
         let projectType = project.type || "software"
         let projectLevel = project.level || "1"
         let projectVotes = project.votes || project.upvotes || 0
-        let projectImage = project.thumbnail_url || project.image || project.img || "https://cdn.hackclub.com/019e83fe-d2d9-70e3-ace2-68fc80d4b1d6/Screenshot%202026-06-01%20192216.png"
-        let projectPfp = project.pfp || (project.owner && (project.owner.image || project.owner.pfp)) || defaultProfilePfp
+        let projectImage = project.thumbnail_url || "https://cdn.hackclub.com/019ef10d-99ef-745b-884e-dbfbff62a87b/mdrc5gt.png"
         let projectFruit = project.fruit || "Papaya"
-        let fruitSlug = String(projectFruit).toLowerCase().replace(/\s+/g, "-")
+        let fruitSlug = convertfruittoshit(String(projectFruit))
+        let projectStreak = project.project_streak_days || null
         projectName = escapeHtml(projectName)
-        projectAuthor = escapeHtml(projectAuthor)
         projectDescription = escapeHtml(projectDescription)
         projectStatus = escapeHtml(projectStatus)
         projectType = escapeHtml(projectType)
         projectLevel = escapeHtml(projectLevel)
         projectVotes = escapeHtml(projectVotes)
         projectImage = escapeHtml(projectImage)
-        projectPfp = escapeHtml(projectPfp)
+        projectStreak = projectStreak == null ? "No" : String(projectStreak) + "d"
+        projectStreak = escapeHtml(projectStreak)
         projectFruit = escapeHtml(projectFruit)
         fruitSlug = escapeHtml(fruitSlug)
         let card = document.createElement("div")
@@ -112,13 +123,13 @@ function homepagething() {
         <path
           d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"></path>
       </svg>
-      36d streak
+      ${projectStreak} streak
     </div>
     <div
       class="absolute top-2 right-2 w-8 h-8 bg-parchment/95 border-2 border-ds-brown flex items-center justify-center"
       title="${projectFruit}">
       <img
-        src="/images/fruits/${fruitSlug}/icon_interior.webp"
+        src="/images/fruits/${fruitSlug}"
         alt="${projectFruit}"
         class="w-5 h-5 object-contain" />
     </div>
@@ -130,22 +141,10 @@ function homepagething() {
       ${projectDescription}
     </p>
     <div class="flex items-center justify-between gap-2 mt-1">
-      <!--
-      <button
-        type="button"
-        class="flex items-center gap-2 min-w-0 hover:opacity-70 transition-opacity">
-        <div class="w-6 h-6 rounded-full overflow-hidden border-2 border-ds-brown/40 shrink-0">
-          <img
-            src="${projectPfp}"
-            alt="${projectAuthor}"
-            class="w-full h-full object-cover" />
-        </div>
-        <span class="text-xs text-ds-brown/80 truncate">${projectAuthor}</span>
-      </button> TODO: not necessary... have to check tho
-        -->
+      
       <div class="flex items-center gap-1 shrink-0">
         <span
-          class="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-ds-success text-parchment">
+          class="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${projectStatusColor} ">
           ${projectStatus}
         </span>
         <span
@@ -341,7 +340,8 @@ function homepagething() {
         let info = {
             "user": {
                 "name": "not found",
-                "pfp": defaultProfilePfp
+                "pfp": defaultProfilePfp,
+                "id": "not found"
             },
             "projects": []
         }
@@ -382,26 +382,23 @@ function homepagething() {
                 }
                 return response.json()
             })
-            .then(function(userInfo) {
+            .then(function (userInfo) {
+                info.user.name = userInfo.name || info.user.name
+                info.user.id = userInfo.id || info.user.id
                 let pfp = findImageUrl(userInfo)
                 if (pfp) {
                     info.user.pfp = pfp
+                    
                 } else {
                     console.warn("macondo: no profile image found in /api/auth/me; using default profile")
                 }
                 information = info
                 doTopbarstuff()
+                if (!info.user.id || info.user.id === "not found") {
+                    throw new Error("auth/me did not return user id")
+                }
+                return fetch(`api/users/${info.user.id}`, { credentials: "include" })
             })
-            .catch(function(error) {
-                console.warn("macondo: could not fetch profile info; using default profile", error)
-                information = info
-                doTopbarstuff()
-            })
-
-
-
-
-        fetch("/api/projects", { credentials: "include" })
             .then(function(response) {
                 if (!response.ok) {
                     throw new Error("api/projects returned " + response.status)
@@ -409,12 +406,12 @@ function homepagething() {
                 return response.json()
             })
             .then(function(projectsData) {
-                info.projects = projectsData || []
+                info.projects = projectsData.projects || []
                 information = info
                 renderProjects()
             })
             .catch(function(error) {
-                console.warn("macondo: could not fetch projects; using default", error)
+                console.warn("macondo: could not fetch profile/projects info; using default", error)
                 information = info
                 doTopbarstuff()
             })
@@ -531,3 +528,4 @@ window.addEventListener('pageChange', function() {
 });
 
 setTimeout(homepagething, 200)
+// todo open the project thing
