@@ -190,13 +190,29 @@ function homepagething() {
         if (location.pathname !== "/dashboard") { return }
         prepareDashboard()
         if (!didTryGetInfo) {
-            getInfo()
+            setTimeout(getInfo, 3000)
         }
         renderProjects()
         doTopbarstuff()
         
     }
+    function closePopup() {
+        console.log("macondo: closing popup")
 
+        let popup = document.getElementsByClassName("relative pl-5 pt-4 pr-6 pb-6 flex flex-col modal-frame relative w-full max-w-6xl mx-4 pointer-events-auto max-h-[90vh]")[0]
+        if (!popup) {
+            console.warn("macondo: popup not found; cannot close")
+            return
+        }
+
+        let close_button = popup.getElementsByClassName("text-sm text-ds-brown flex items-center gap-1 hover:opacity-70 transition-opacity")[0]
+        if (!close_button) {
+            console.warn("macondo: popup close button not found")
+            return
+        }
+
+        close_button.click()
+    }
     function makepfp() {
         let pfpUrl = information.user && information.user.pfp ? information.user.pfp : defaultProfilePfp
         let existingPfp = document.getElementById("macondo-boringizer-pfp")
@@ -236,6 +252,29 @@ function homepagething() {
         pfp.appendChild(img)
         return pfp
 
+    }
+
+    function extractProjectFromElement(projectElement) {
+        console.log("good morning officer", projectElement)
+        let project = {
+            id: 7878,
+            name: "not found",
+            plant: "not found",
+            stage: "not found",
+            description: "not found",
+            img: "not found"
+        }
+        
+
+        let projectHref = projectElement.href
+        console.log("project href", projectHref)
+        let id = projectHref.split("/")[1]
+        console.log(id)
+
+        console.log(project.id)
+
+        console.log(project)
+        return project
     }
 
     function getInfo() {
@@ -300,6 +339,23 @@ function homepagething() {
                 doTopbarstuff()
             })
 
+        
+
+
+        openProfilePopup(null, true, true)
+        let popup = document.getElementsByClassName("relative pl-5 pt-4 pr-6 pb-6 flex flex-col modal-frame relative w-full max-w-6xl mx-4 pointer-events-auto max-h-[90vh]")[0]
+        
+        let projectsDiv = popup.getElementsByClassName("flex flex-col gap-2")[2]
+
+        console.log("macondo: found projects div", projectsDiv)
+
+        let projects = []
+        let projectElements = projectsDiv.children
+        for (let projectElement of projectElements) {
+            let project = extractProjectFromElement(projectElement)
+            projects.push(project)
+        }
+        info.projects = projects
         return info
     }
 
@@ -313,7 +369,7 @@ function homepagething() {
         })
     }
 
-    function openProfilePopup(event) {
+    function openProfilePopup(event, iNEEDTHEFUCKINGOPOPUP, invisible) {
         if (event && (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)) {
             return
         }
@@ -368,7 +424,9 @@ function homepagething() {
             restoreGameWorldAfterFailure()
 
             console.warn("macondo: profile popup did not open; going to profile page")
-            window.location.assign("/profile")
+            if (!iNEEDTHEFUCKINGOPOPUP) {
+                window.location.assign("/profile")
+            }
         }, 400)
     }
 
