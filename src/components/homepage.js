@@ -20,7 +20,23 @@ function homepagething() {
         },
         "projects": []
     }
+    let placeholderProjects = [
+        {
+            "id": "placeholder-1",
+            "name": "WAIT MF", // TODO: loading bar
+            "author": "Levi",
+            "description": "A 2D Action & Adventure RPG",
+            "status": "Shipped",
+            "type": "software",
+            "level": "3",
+            "votes": 8,
+            "image": "https://cdn.hackclub.com/019e83fe-d2d9-70e3-ace2-68fc80d4b1d6/Screenshot%202026-06-01%20192216.png",
+            "pfp": "https://l4.dunkirk.sh/i/5DjfoBI58Pfw.webp",
+            "fruit": "Papaya"
+        }
+    ]
     let didTryGetInfo = false
+    let renderedProjectsKey = ""
 
     function getMainContainer() {
         return document.getElementsByClassName("fixed inset-0 overflow-hidden bg-parchment")[0]
@@ -48,6 +64,16 @@ function homepagething() {
     }
 
 
+    function escapeHtml(value) {
+        return String(value == null ? "" : value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;")
+    }
+
+
     let projectSchema = {
         "name": String,
         "author": String,
@@ -56,14 +82,37 @@ function homepagething() {
     }
 
     function projectCard(project) {
+        project = project || {}
+        let projectName = project.name || "Untitled project"
+        let projectAuthor = project.author || (project.owner && (project.owner.username || project.owner.name)) || information.user.name || "Macondo"
+        let projectDescription = project.description || "No description yet."
+        let projectStatus = project.status || (project.stage === 1 ? "Building" : "Shipped")
+        let projectType = project.type || "software"
+        let projectLevel = project.level || "1"
+        let projectVotes = project.votes || project.upvotes || 0
+        let projectImage = project.thumbnail_url || project.image || project.img || "https://cdn.hackclub.com/019e83fe-d2d9-70e3-ace2-68fc80d4b1d6/Screenshot%202026-06-01%20192216.png"
+        let projectPfp = project.pfp || (project.owner && (project.owner.image || project.owner.pfp)) || defaultProfilePfp
+        let projectFruit = project.fruit || "Papaya"
+        let fruitSlug = String(projectFruit).toLowerCase().replace(/\s+/g, "-")
+        projectName = escapeHtml(projectName)
+        projectAuthor = escapeHtml(projectAuthor)
+        projectDescription = escapeHtml(projectDescription)
+        projectStatus = escapeHtml(projectStatus)
+        projectType = escapeHtml(projectType)
+        projectLevel = escapeHtml(projectLevel)
+        projectVotes = escapeHtml(projectVotes)
+        projectImage = escapeHtml(projectImage)
+        projectPfp = escapeHtml(projectPfp)
+        projectFruit = escapeHtml(projectFruit)
+        fruitSlug = escapeHtml(fruitSlug)
         let card = document.createElement("div")
         card.className = "group flex min-h-0 flex-col bg-parchment border-[3px] border-ds-brown/20 hover:border-ds-brown/60 cursor-pointer transition-colors"
         let cardContent = `
   <div
     class="relative aspect-[16/10] bg-ds-brown/10 overflow-hidden border-b-[3px] border-ds-brown/10">
     <img
-      src="https://cdn.hackclub.com/019e83fe-d2d9-70e3-ace2-68fc80d4b1d6/Screenshot%202026-06-01%20192216.png"
-      alt="adventure time"
+      src="${projectImage}"
+      alt="${projectName}"
       class="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
       loading="lazy" />
     <div
@@ -87,18 +136,18 @@ function homepagething() {
     </div>
     <div
       class="absolute top-2 right-2 w-8 h-8 bg-parchment/95 border-2 border-ds-brown flex items-center justify-center"
-      title="Papaya">
+      title="${projectFruit}">
       <img
-        src="/images/fruits/papaya/icon_interior.webp"
-        alt="Papaya"
+        src="/images/fruits/${fruitSlug}/icon_interior.webp"
+        alt="${projectFruit}"
         class="w-5 h-5 object-contain" />
     </div>
     <!---->
   </div>
   <div class="flex flex-1 flex-col gap-2 p-3">
-    <h3 class="text-base font-bold text-ds-brown leading-tight line-clamp-2">adventure time</h3>
+    <h3 class="text-base font-bold text-ds-brown leading-tight line-clamp-2">${projectName}</h3>
     <p class="text-xs text-ds-brown/70 leading-snug line-clamp-2">
-      ِA 2D Action &amp; Adventure RPG
+      ${projectDescription}
     </p>
     <div class="flex items-center justify-between gap-2 mt-1">
       <button
@@ -106,24 +155,24 @@ function homepagething() {
         class="flex items-center gap-2 min-w-0 hover:opacity-70 transition-opacity">
         <div class="w-6 h-6 rounded-full overflow-hidden border-2 border-ds-brown/40 shrink-0">
           <img
-            src="https://l4.dunkirk.sh/i/5DjfoBI58Pfw.webp"
-            alt="Levi"
+            src="${projectPfp}"
+            alt="${projectAuthor}"
             class="w-full h-full object-cover" />
         </div>
-        <span class="text-xs text-ds-brown/80 truncate">Levi</span>
+        <span class="text-xs text-ds-brown/80 truncate">${projectAuthor}</span>
       </button>
       <div class="flex items-center gap-1 shrink-0">
         <span
           class="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-ds-success text-parchment">
-          Shipped
+          ${projectStatus}
         </span>
         <span
           class="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-ds-brown/10 text-ds-brown/80">
-          software
+          ${projectType}
         </span>
         <span
           class="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-ds-brown/10 text-ds-brown/80">
-          L3
+          L${projectLevel}
         </span>
       </div>
     </div>
@@ -147,7 +196,7 @@ function homepagething() {
           aria-hidden="true">
           <path d="m18 15-6-6-6 6"></path>
         </svg>
-        <span class="tabular-nums">8</span>
+        <span class="tabular-nums">${projectVotes}</span>
       </button>
       <span class="text-[10px] text-ds-brown/40 uppercase tracking-wider">View project</span>
     </div>
@@ -175,15 +224,29 @@ function homepagething() {
 
     function renderProjects() {
         let mainContainer = getMainContainer()
-        if (!mainContainer || document.getElementById(customProjectsId)) { return }
+        if (!mainContainer) { return }
 
-        let projectsContainer = document.createElement("div")
-        projectsContainer.id = customProjectsId
-        projectsContainer.className = "relative z-10 mx-4 mt-28 mb-32 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-rows-max gap-4"
-        for (let i = 0; i < 5; i++) {
-            projectsContainer.appendChild(projectCard())
+        let projectsContainer = document.getElementById(customProjectsId)
+        if (!projectsContainer) {
+            projectsContainer = document.createElement("div")
+            projectsContainer.id = customProjectsId
+            projectsContainer.className = "relative z-10 mx-4 mt-28 mb-32 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-rows-max gap-4"
+            mainContainer.appendChild(projectsContainer)
         }
-        mainContainer.appendChild(projectsContainer)
+
+        let projectsToRender = information.projects.length ? information.projects : placeholderProjects
+        let projectsKey = projectsToRender.map(function(project) {
+            return project.id || project.name || ""
+        }).join("|")
+        if (projectsKey === renderedProjectsKey && projectsContainer.children.length === projectsToRender.length) {
+            return
+        }
+        renderedProjectsKey = projectsKey
+
+        projectsContainer.replaceChildren()
+        for (let i = 0; i < projectsToRender.length; i++) {
+            projectsContainer.appendChild(projectCard(projectsToRender[i]))
+        }
     }
 
     function syncDashboard() {
@@ -254,6 +317,8 @@ function homepagething() {
 
     }
 
+
+    // todo depracted
     function extractProjectFromElement(projectElement) {
         console.log("good morning officer", projectElement)
         let project = {
@@ -275,7 +340,7 @@ function homepagething() {
 
 
         let nameelement = projectElement.children.at(-1)
-        
+
 
 
         let imgimg = projectElement.children[0]
@@ -351,20 +416,25 @@ function homepagething() {
         
 
 
-        openProfilePopup(null, true, true)
-        let popup = document.getElementsByClassName("relative pl-5 pt-4 pr-6 pb-6 flex flex-col modal-frame relative w-full max-w-6xl mx-4 pointer-events-auto max-h-[90vh]")[0]
+        fetch("/api/projects", { credentials: "include" })
+            .then(function(response) {
+                if (!response.ok) {
+                    throw new Error("api/projects returned " + response.status)
+                }
+                return response.json()
+            })
+            .then(function(projectsData) {
+                info.projects = projectsData || []
+                information = info
+                renderProjects()
+            })
+            .catch(function(error) {
+                console.warn("macondo: could not fetch projects; using default", error)
+                information = info
+                doTopbarstuff()
+            })
         
-        let projectsDiv = popup.getElementsByClassName("flex flex-col gap-2")[2]
-
-        console.log("macondo: found projects div", projectsDiv)
-
-        let projects = []
-        let projectElements = projectsDiv.children
-        for (let projectElement of projectElements) {
-            let project = extractProjectFromElement(projectElement)
-            projects.push(project)
-        }
-        info.projects = projects
+        console.log(info)
         return info
     }
 
