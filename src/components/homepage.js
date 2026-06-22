@@ -133,6 +133,11 @@ function homepagething() {
     }
 
     async function rightclickandextractfarmtile(tile, justrightclick, x, y) {
+        if (!tile) {
+            console.warn("macondo: farm tile not found for project context menu")
+            return null
+        }
+
         if (justrightclick) {
             tile.dispatchEvent(new MouseEvent('contextmenu', {
                 bubbles: true,
@@ -169,6 +174,26 @@ function homepagething() {
 
         return projectName || null
     }
+
+
+    function projectcontextmenu(projectId, e) {
+        let normalizedProjectId = String(projectId)
+        let escapedProjectId = window.CSS && CSS.escape ? CSS.escape(normalizedProjectId) : normalizedProjectId.replace(/"/g, '\\"')
+        let projecttiles = document.querySelectorAll(`[data-macondo-project-id="${escapedProjectId}"]`)
+        let target = null
+        
+        for (let tile of projecttiles) {
+            if (tile.getAttribute("data-macondo-project-id") === normalizedProjectId) {
+                target = tile
+                break
+            }
+        }
+
+        e.preventDefault()
+
+        rightclickandextractfarmtile(target, true, e.clientX, e.clientY)
+    }
+
 
     async function linkFarmAreasToProjects() {
         if (isLinkingFarmAreas) { return }
@@ -372,6 +397,12 @@ function homepagething() {
 
         `
         card.innerHTML = cardContent
+
+        card.addEventListener("contextmenu", function (e) {
+            console.log("macondo: project card clicked", project.id)
+            projectcontextmenu(project.id, e)
+        })
+
         return card
     }
 
