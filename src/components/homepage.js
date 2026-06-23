@@ -40,9 +40,11 @@ function homepagething() {
         }
     ]
     let didTryGetInfo = false
+    let didLoadProjects = false
     let renderedProjectsKey = ""
     let linkedFarmAreasKey = ""
     let isLinkingFarmAreas = false
+    let activeProjectPopupId = null
     // TODO: show a small loading spinner while farm links are being resolved.
     // It can be considered done when isLinkingFarmAreas is false and
     // linkedFarmAreasKey matches the current farm tile/project key.
@@ -203,16 +205,53 @@ function homepagething() {
         }
 
         e.preventDefault()
+        if (!target) {
+            console.warn("macondo: project tile not found for popup", normalizedProjectId)
+            return
+        }
+
+        activeProjectPopupId = normalizedProjectId
 
         target.dispatchEvent(new MouseEvent('click', {
             bubbles: true,
             cancelable: true,
             button: 0,
             buttons: 1,
-            clientX: e.clickX,
-            clientY: e.clickY,
+            clientX: e.clientX,
+            clientY: e.clientY,
         }));
     }
+
+    function removeProjectFromDashboard(projectId) { // todo: test, i cant rn bc theres nothing to make a new project
+        let normalizedProjectId = String(projectId)
+        let oldProjects = information.projects || []
+        let newProjects = oldProjects.filter(function(project) {
+            return String(project.id) !== normalizedProjectId
+        })
+
+        if (newProjects.length === oldProjects.length) { return }
+
+        information.projects = newProjects
+        renderedProjectsKey = ""
+        linkedFarmAreasKey = ""
+        renderProjects()
+        linkFarmAreasToProjects()
+    }
+
+    function watchProjectDeleteClick(event) {
+        let button = event.target && event.target.closest ? event.target.closest("button") : null
+        if (!button || button.textContent.trim() !== "Delete Project") { return }
+        if (!activeProjectPopupId) { return }
+
+        let deletedProjectId = activeProjectPopupId
+        setTimeout(function() {
+            removeProjectFromDashboard(deletedProjectId)
+            if (activeProjectPopupId === deletedProjectId) {
+                activeProjectPopupId = null
+            }
+        }, 0)
+    }
+    document.addEventListener("click", watchProjectDeleteClick, true)
  
 
     function isShopModalOpen() {
@@ -522,7 +561,7 @@ function homepagething() {
             mainContainer.appendChild(projectsContainer)
         }
 
-        let projectsToRender = information.projects.length ? information.projects : placeholderProjects
+        let projectsToRender = information.projects.length || didLoadProjects ? information.projects : placeholderProjects
         let projectsKey = projectsToRender.map(function(project) {
             return project.id || project.name || ""
         }).join("|")
@@ -683,6 +722,7 @@ function homepagething() {
             })
             .then(function(projectsData) {
                 info.projects = projectsData.projects || []
+                didLoadProjects = true
                 information = info
                 renderProjects()
                 linkFarmAreasToProjects()
