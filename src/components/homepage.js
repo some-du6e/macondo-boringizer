@@ -218,7 +218,74 @@ function homepagething() {
             clientY: e.clickY,
         }));
     }
+ 
 
+    function isShopModalOpen() {
+        return !!document.querySelector(".modal-frame")
+    }
+
+    function findShopOpener() {
+        return Array.from(document.querySelectorAll("button")).find(function(button) {
+            return button.textContent.trim() === "Open the shop"
+        })
+    }
+
+    function shoppopup(e) {
+        if (e && (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)) {
+            return
+        }
+
+        if (e) {
+            e.preventDefault()
+        }
+
+        console.log("macondo: opening shop popup")
+        if (isShopModalOpen()) { return }
+
+        let gameWorld = document.querySelector(".game-world")
+        let oldGameWorldState = null
+        if (gameWorld) {
+            oldGameWorldState = {
+                hidden: gameWorld.hidden,
+                opacity: gameWorld.style.opacity,
+                pointerEvents: gameWorld.style.pointerEvents
+            }
+            gameWorld.hidden = false
+            gameWorld.style.opacity = "0"
+            gameWorld.style.pointerEvents = "none"
+        }
+
+        let opener = findShopOpener()
+        if (!opener) {
+            restoreGameWorldAfterFailure()
+            console.warn("macondo: shop opener not found")
+            return
+        }
+
+        function restoreGameWorldForModal() {
+            if (!gameWorld || !oldGameWorldState) { return }
+            gameWorld.style.opacity = oldGameWorldState.opacity
+            gameWorld.style.pointerEvents = oldGameWorldState.pointerEvents
+        }
+
+        function restoreGameWorldAfterFailure() {
+            if (!gameWorld || !oldGameWorldState) { return }
+            gameWorld.hidden = oldGameWorldState.hidden
+            gameWorld.style.opacity = oldGameWorldState.opacity
+            gameWorld.style.pointerEvents = oldGameWorldState.pointerEvents
+        }
+
+        opener.click()
+        setTimeout(function() {
+            if (isShopModalOpen()) {
+                restoreGameWorldForModal()
+                return
+            }
+
+            restoreGameWorldAfterFailure()
+            console.warn("macondo: shop popup did not open")
+        }, 400)
+    }
 
     async function linkFarmAreasToProjects() {
         if (isLinkingFarmAreas) { return }
@@ -295,12 +362,6 @@ function homepagething() {
     }
 
 
-    let projectSchema = {
-        "name": String,
-        "author": String,
-        "description": String,
-        "status": ""
-    }
 
     function projectCard(project) {
         project = project || {}
@@ -737,6 +798,32 @@ function homepagething() {
         }, 400)
     }
 
+    function hideThemeToggle(topbar) {
+        let themeToggle = topbar.querySelector('[role="group"][aria-label="Day and night mode"]')
+        if (!themeToggle) { return }
+        themeToggle.style.display = "none"
+        themeToggle.setAttribute("aria-hidden", "true")
+    }
+
+    function addShopButton(topbar) {
+        if (document.getElementById("macondo-boringizer-shop-button")) { return }
+
+        let docsLink = topbar.querySelector('a[href="/docs"]')
+        let notificationsButton = topbar.querySelector('button[aria-label="Notifications"]')
+        if (!docsLink || !notificationsButton || !notificationsButton.parentElement || !notificationsButton.parentElement.parentElement) { return }
+
+        let shopButton = document.createElement("button")
+        shopButton.id = "macondo-boringizer-shop-button"
+        shopButton.type = "button"
+        shopButton.className = docsLink.className
+        shopButton.setAttribute("aria-label", "Shop")
+        shopButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 md:w-5 md:h-5 lucide lucide-store-icon lucide-store" aria-hidden="true"><path d="M15 21v-5a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v5"/><path d="M17.774 10.31a1.12 1.12 0 0 0-1.549 0 2.5 2.5 0 0 1-3.451 0 1.12 1.12 0 0 0-1.548 0 2.5 2.5 0 0 1-3.452 0 1.12 1.12 0 0 0-1.549 0 2.5 2.5 0 0 1-3.77-3.248l2.889-4.184A2 2 0 0 1 7 2h10a2 2 0 0 1 1.653.873l2.895 4.192a2.5 2.5 0 0 1-3.774 3.244"/><path d="M4 10.95V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8.05"/></svg><span class="hidden md:inline">Shop</span>`
+        shopButton.addEventListener("click", function(e) {
+            shoppopup(e)
+        })
+        notificationsButton.parentElement.parentElement.insertBefore(shopButton, notificationsButton.parentElement)
+    }
+
     function doTopbarstuff() {
         let topbar = document.getElementById("macondo-boringizer-topbar") || document.getElementsByClassName("absolute top-0 left-0 right-0 z-[100] pointer-events-none")[0]
         if (!topbar) { console.error("boring: topbar not found! ID:1s9f8g"); return }
@@ -745,6 +832,8 @@ function homepagething() {
 
         topbar.classList.remove("absolute")
         topbar.classList.remove("pointer-events-none")
+        hideThemeToggle(topbar)
+        addShopButton(topbar)
 
         let leftside = topbar.children[0].children[0]
         leftside.id = "macondo-boringizer-leftside"
@@ -753,6 +842,7 @@ function homepagething() {
         if (pfp.parentElement !== leftside) {
             leftside.appendChild(pfp)
         }
+
 
     }
 
@@ -774,4 +864,3 @@ window.addEventListener('pageChange', function() {
 });
 
 setTimeout(homepagething, 200)
-// todo open the project thing
