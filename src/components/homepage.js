@@ -891,6 +891,7 @@ function homepagething() {
         notificationsButton.parentElement.parentElement.insertBefore(shopButton, notificationsButton.parentElement)
     }
 
+
     function addExploreButton(topbar) {
         if (document.getElementById("macondo-boringizer-explore-button")) { return }
 
@@ -898,15 +899,12 @@ function homepagething() {
         let notificationsButton = topbar.querySelector('button[aria-label="Notifications"]')
         if (!docsLink || !notificationsButton || !notificationsButton.parentElement || !notificationsButton.parentElement.parentElement) { return }
 
-        let exploreButton = document.createElement("button")
+        let exploreButton = document.createElement("a")
         exploreButton.id = "macondo-boringizer-explore-button"
-        exploreButton.type = "button"
         exploreButton.className = docsLink.className
         exploreButton.setAttribute("aria-label", "Explore")
         exploreButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 md:w-5 md:h-5 lucide lucide-compass-icon lucide-compass" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-1.8 5.39a2 2 0 0 1-1.26 1.26l-5.42 1.83 1.8-5.39a2 2 0 0 1 1.26-1.26z"/></svg><span class="hidden md:inline">Explore</span>`
-        exploreButton.addEventListener("click", function(e) {
-            explorepopup(e)
-        })
+        exploreButton.href = "/explore"
         notificationsButton.parentElement.parentElement.insertBefore(exploreButton, notificationsButton.parentElement)
     }
 
