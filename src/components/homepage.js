@@ -287,6 +287,73 @@ function homepagething() {
         }, 400)
     }
 
+    function isExploreModalOpen() {
+        let internalPopup = document.querySelector(".internal-popup")
+        let hasInternalPopup = internalPopup && internalPopup.children.length > 0
+        return !!document.querySelector(".modal-frame") || !!hasInternalPopup || location.pathname === "/explore"
+    }
+
+    function findExploreOpener() {
+        return document.getElementsByClassName("explore-area")[0]
+    }
+
+    function explorepopup(e) {
+        if (e && (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)) {
+            return
+        }
+
+        if (e) {
+            e.preventDefault()
+        }
+
+        console.log("macondo: opening explore popup")
+        if (isExploreModalOpen()) { return }
+
+        let gameWorld = document.querySelector(".game-world")
+        let oldGameWorldState = null
+        if (gameWorld) {
+            oldGameWorldState = {
+                hidden: gameWorld.hidden,
+                opacity: gameWorld.style.opacity,
+                pointerEvents: gameWorld.style.pointerEvents
+            }
+            gameWorld.hidden = false
+            gameWorld.style.opacity = "0"
+            gameWorld.style.pointerEvents = "auto"
+        }
+
+        function restoreGameWorldForModal() {
+            if (!gameWorld || !oldGameWorldState) { return }
+            gameWorld.style.opacity = oldGameWorldState.opacity
+            gameWorld.style.pointerEvents = oldGameWorldState.pointerEvents
+        }
+
+        function restoreGameWorldAfterFailure() {
+            if (!gameWorld || !oldGameWorldState) { return }
+            gameWorld.hidden = oldGameWorldState.hidden
+            gameWorld.style.opacity = oldGameWorldState.opacity
+            gameWorld.style.pointerEvents = oldGameWorldState.pointerEvents
+        }
+
+        let opener = findExploreOpener()
+        if (!opener) {
+            restoreGameWorldAfterFailure()
+            console.warn("macondo: explore opener not found")
+            return
+        }
+
+        opener.click()
+        setTimeout(function() {
+            if (isExploreModalOpen()) {
+                restoreGameWorldForModal()
+                return
+            }
+
+            restoreGameWorldAfterFailure()
+            console.warn("macondo: explore popup did not open")
+        }, 400)
+    }
+
     async function linkFarmAreasToProjects() {
         if (isLinkingFarmAreas) { return }
 
@@ -824,6 +891,25 @@ function homepagething() {
         notificationsButton.parentElement.parentElement.insertBefore(shopButton, notificationsButton.parentElement)
     }
 
+    function addExploreButton(topbar) {
+        if (document.getElementById("macondo-boringizer-explore-button")) { return }
+
+        let docsLink = topbar.querySelector('a[href="/docs"]')
+        let notificationsButton = topbar.querySelector('button[aria-label="Notifications"]')
+        if (!docsLink || !notificationsButton || !notificationsButton.parentElement || !notificationsButton.parentElement.parentElement) { return }
+
+        let exploreButton = document.createElement("button")
+        exploreButton.id = "macondo-boringizer-explore-button"
+        exploreButton.type = "button"
+        exploreButton.className = docsLink.className
+        exploreButton.setAttribute("aria-label", "Explore")
+        exploreButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 md:w-5 md:h-5 lucide lucide-compass-icon lucide-compass" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-1.8 5.39a2 2 0 0 1-1.26 1.26l-5.42 1.83 1.8-5.39a2 2 0 0 1 1.26-1.26z"/></svg><span class="hidden md:inline">Explore</span>`
+        exploreButton.addEventListener("click", function(e) {
+            explorepopup(e)
+        })
+        notificationsButton.parentElement.parentElement.insertBefore(exploreButton, notificationsButton.parentElement)
+    }
+
     function doTopbarstuff() {
         let topbar = document.getElementById("macondo-boringizer-topbar") || document.getElementsByClassName("absolute top-0 left-0 right-0 z-[100] pointer-events-none")[0]
         if (!topbar) { console.error("boring: topbar not found! ID:1s9f8g"); return }
@@ -834,6 +920,7 @@ function homepagething() {
         topbar.classList.remove("pointer-events-none")
         hideThemeToggle(topbar)
         addShopButton(topbar)
+        addExploreButton(topbar)
 
         let leftside = topbar.children[0].children[0]
         leftside.id = "macondo-boringizer-leftside"
