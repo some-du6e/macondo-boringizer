@@ -47,9 +47,6 @@ function homepagething() {
     // It can be considered done when isLinkingFarmAreas is false and
     // linkedFarmAreasKey matches the current farm tile/project key.
 
-    function getMainContainer() {
-        return document.getElementsByClassName("fixed inset-0 overflow-hidden bg-parchment")[0]
-    }
 
     function wait(ms) {
         return new Promise(function(resolve) {
@@ -57,12 +54,9 @@ function homepagething() {
         })
     }
 
-    function farmContextMenu() {
-        return document.getElementsByClassName("fixed bg-parchment border-[3px] border-ds-brown shadow-xl w-52 py-1")[0] || null
-    }
 
     async function closeFarmContextMenu() {
-        let contextMenu = farmContextMenu()
+        let contextMenu = document.getElementsByClassName("fixed bg-parchment border-[3px] border-ds-brown shadow-xl w-52 py-1")[0] || null
         if (!contextMenu) { return }
 
         document.dispatchEvent(new KeyboardEvent("keydown", {
@@ -73,7 +67,8 @@ function homepagething() {
         }))
         await wait(20)
 
-        if (!farmContextMenu()) { return }
+        let contextmenu2 = document.getElementsByClassName("fixed bg-parchment border-[3px] border-ds-brown shadow-xl w-52 py-1")[0] || null
+        if (!contextmenu2) { return }
 
         let menuRect = contextMenu.getBoundingClientRect()
         let clickX = menuRect.right + 20
@@ -164,7 +159,7 @@ function homepagething() {
 
         await wait(50)
 
-        let contextMenu = farmContextMenu()
+        let contextMenu = document.getElementsByClassName("fixed bg-parchment border-[3px] border-ds-brown shadow-xl w-52 py-1")[0] || null
         if (!contextMenu) { return null }
 
         let nameElement = contextMenu.getElementsByClassName("px-3 py-1.5 text-xs font-bold text-ds-brown/60 truncate")[0]
@@ -287,72 +282,8 @@ function homepagething() {
         }, 400)
     }
 
-    function isExploreModalOpen() {
-        let internalPopup = document.querySelector(".internal-popup")
-        let hasInternalPopup = internalPopup && internalPopup.children.length > 0
-        return !!document.querySelector(".modal-frame") || !!hasInternalPopup || location.pathname === "/explore"
-    }
+    
 
-    function findExploreOpener() {
-        return document.getElementsByClassName("explore-area")[0]
-    }
-
-    function explorepopup(e) {
-        if (e && (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)) {
-            return
-        }
-
-        if (e) {
-            e.preventDefault()
-        }
-
-        console.log("macondo: opening explore popup")
-        if (isExploreModalOpen()) { return }
-
-        let gameWorld = document.querySelector(".game-world")
-        let oldGameWorldState = null
-        if (gameWorld) {
-            oldGameWorldState = {
-                hidden: gameWorld.hidden,
-                opacity: gameWorld.style.opacity,
-                pointerEvents: gameWorld.style.pointerEvents
-            }
-            gameWorld.hidden = false
-            gameWorld.style.opacity = "0"
-            gameWorld.style.pointerEvents = "auto"
-        }
-
-        function restoreGameWorldForModal() {
-            if (!gameWorld || !oldGameWorldState) { return }
-            gameWorld.style.opacity = oldGameWorldState.opacity
-            gameWorld.style.pointerEvents = oldGameWorldState.pointerEvents
-        }
-
-        function restoreGameWorldAfterFailure() {
-            if (!gameWorld || !oldGameWorldState) { return }
-            gameWorld.hidden = oldGameWorldState.hidden
-            gameWorld.style.opacity = oldGameWorldState.opacity
-            gameWorld.style.pointerEvents = oldGameWorldState.pointerEvents
-        }
-
-        let opener = findExploreOpener()
-        if (!opener) {
-            restoreGameWorldAfterFailure()
-            console.warn("macondo: explore opener not found")
-            return
-        }
-
-        opener.click()
-        setTimeout(function() {
-            if (isExploreModalOpen()) {
-                restoreGameWorldForModal()
-                return
-            }
-
-            restoreGameWorldAfterFailure()
-            console.warn("macondo: explore popup did not open")
-        }, 400)
-    }
 
     async function linkFarmAreasToProjects() {
         if (isLinkingFarmAreas) { return }
@@ -567,7 +498,7 @@ function homepagething() {
 
 
     function prepareDashboard() {
-        let mainContainer = getMainContainer()
+        let mainContainer = document.getElementsByClassName("fixed inset-0 overflow-hidden bg-parchment")[0]
         if (mainContainer) {
             mainContainer.style.overflowY = "auto"
             mainContainer.style.overflowX = "hidden"
@@ -580,7 +511,7 @@ function homepagething() {
     }
 
     function renderProjects() {
-        let mainContainer = getMainContainer()
+        let mainContainer = document.getElementsByClassName("fixed inset-0 overflow-hidden bg-parchment")[0]
         if (!mainContainer) { return }
 
         let projectsContainer = document.getElementById(customProjectsId)
