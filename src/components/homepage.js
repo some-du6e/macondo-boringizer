@@ -547,6 +547,9 @@ function homepagething() {
         doTopbarstuff()
 
     }
+
+    // DONT DELETE
+    // for later use
     function closePopup() {
         console.log("macondo: closing popup")
 
@@ -606,38 +609,7 @@ function homepagething() {
     }
 
 
-    // todo depracted
-    function extractProjectFromElement(projectElement) {
-        console.log("good morning officer", projectElement)
-        let project = {
-            id: 7878,
-            name: "not found",
-            plant: "not found",
-            stage: "not found",
-            description: "not found",
-            img: "not found",
-            type: "not found",
-            status: "not found"
-        }
-
-
-        let projectHref = projectElement.href
-        console.log("project href", projectHref)
-        let id = String(projectHref).split("/")[4]
-        project.id = id
-
-
-        let nameelement = projectElement.children.at(-1)
-
-
-
-        let imgimg = projectElement.children[0]
-        let img = imgimg ? imgimg.src : null // todo check slack
-        project.img = img
-
-        console.log(project)
-        return project
-    }
+    
 
     function getInfo() {
         didTryGetInfo = true
