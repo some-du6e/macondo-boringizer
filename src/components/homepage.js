@@ -45,6 +45,7 @@ function homepagething() {
     let linkedFarmAreasKey = ""
     let isLinkingFarmAreas = false
     let activeProjectPopupId = null
+    let activeProjectPopupSnapshot = null
     // TODO: show a small loading spinner while farm links are being resolved.
     // It can be considered done when isLinkingFarmAreas is false and
     // linkedFarmAreasKey matches the current farm tile/project key.
@@ -211,6 +212,7 @@ function homepagething() {
         }
 
         activeProjectPopupId = normalizedProjectId
+        activeProjectPopupSnapshot = null
 
         target.dispatchEvent(new MouseEvent('click', {
             bubbles: true,
@@ -238,6 +240,65 @@ function homepagething() {
         linkFarmAreasToProjects()
     }
 
+    function updateProjectInDashboard(projectData) {
+        if (!projectData || projectData.id == null) { return }
+
+        let normalizedProjectId = String(projectData.id)
+        let oldProjects = information.projects || []
+        let didFindProject = false
+
+        information.projects = oldProjects.map(function(project) {
+            if (String(project.id) !== normalizedProjectId) { return project }
+            didFindProject = true
+            return Object.assign({}, project, projectData)
+        })
+
+        if (!didFindProject) { return }
+
+        renderedProjectsKey = ""
+        renderProjects()
+    }
+
+    function syncActiveProjectFromPopupDom() {
+        if (!activeProjectPopupId) { return }
+
+        let popup = document.querySelector(".modal-frame")
+        if (!popup) { return }
+
+        let updatedProject = {
+            id: activeProjectPopupId
+        }
+        let didFindChange = false
+
+        let title = popup.querySelector('[data-tour="project-title"] h1')
+        if (title && title.textContent.trim()) {
+            updatedProject.name = title.textContent.trim()
+            didFindChange = true
+        }
+
+        let description = popup.querySelector('[data-tour="project-description"] .prose-desc')
+        if (description) {
+            updatedProject.description = description.textContent.trim()
+            didFindChange = true
+        }
+
+        if (!didFindChange) { return }
+
+        let snapshot = JSON.stringify(updatedProject)
+        if (!activeProjectPopupSnapshot) {
+            activeProjectPopupSnapshot = snapshot
+            return
+        }
+
+        if (snapshot === activeProjectPopupSnapshot) { return }
+
+        activeProjectPopupSnapshot = snapshot
+        
+        if (didFindChange) {
+            updateProjectInDashboard(updatedProject)
+        }
+    }
+
     function watchProjectDeleteClick(event) {
         let button = event.target && event.target.closest ? event.target.closest("button") : null
         if (!button || button.textContent.trim() !== "Delete Project") { return }
@@ -248,6 +309,7 @@ function homepagething() {
             removeProjectFromDashboard(deletedProjectId)
             if (activeProjectPopupId === deletedProjectId) {
                 activeProjectPopupId = null
+                activeProjectPopupSnapshot = null
             }
         }, 0)
     }
@@ -582,6 +644,7 @@ function homepagething() {
         if (!didTryGetInfo) {
             setTimeout(getInfo, 3000)
         }
+        syncActiveProjectFromPopupDom()
         renderProjects()
         doTopbarstuff()
 
