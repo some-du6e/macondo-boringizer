@@ -46,6 +46,9 @@ function homepagething() {
     let isLinkingFarmAreas = false
     let activeProjectPopupId = null
     let activeProjectPopupSnapshot = null
+    let pendingDeleteProjectId = null
+    let isWaitingForNewProjectClose = false
+    let didSeeNewProjectPopup = false
     // TODO: show a small loading spinner while farm links are being resolved.
     // It can be considered done when isLinkingFarmAreas is false and
     // linkedFarmAreasKey matches the current farm tile/project key.
@@ -201,6 +204,8 @@ function homepagething() {
             return
         }
 
+        isWaitingForNewProjectClose = true
+        didSeeNewProjectPopup = false
 
         target.dispatchEvent(new MouseEvent('click', {
             bubbles: true,
@@ -338,17 +343,35 @@ function homepagething() {
         }
     }
 
+    function isDeleteConfirmDialog(element) {
+        let dialog = element && element.closest ? element.closest('[role="dialog"]') : null
+        if (!dialog) { return false }
+
+        let heading = dialog.querySelector("h2")
+        return !!heading && heading.textContent.trim() === "Delete Project"
+    }
+
     function watchProjectDeleteClick(event) {
         let button = event.target && event.target.closest ? event.target.closest("button") : null
         if (!button || button.textContent.trim() !== "Delete Project") { return }
-        if (!activeProjectPopupId) { return }
+        if (!activeProjectPopupId && !pendingDeleteProjectId) { return }
 
-        let deletedProjectId = activeProjectPopupId
+        if (!isDeleteConfirmDialog(button)) {
+            pendingDeleteProjectId = activeProjectPopupId
+            return
+        }
+
+        if (!button.classList.contains("ds-btn-danger")) { return }
+
+        let deletedProjectId = pendingDeleteProjectId || activeProjectPopupId
         setTimeout(function() {
             removeProjectFromDashboard(deletedProjectId)
             if (activeProjectPopupId === deletedProjectId) {
                 activeProjectPopupId = null
                 activeProjectPopupSnapshot = null
+            }
+            if (pendingDeleteProjectId === deletedProjectId) {
+                pendingDeleteProjectId = null
             }
         }, 0)
     }
@@ -479,6 +502,29 @@ function homepagething() {
             await closeFarmContextMenu()
             isLinkingFarmAreas = false
         }
+    }
+
+    function isNewProjectPopupOpen() {
+        return Array.from(document.querySelectorAll('[role="dialog"]')).some(function(dialog) {
+            let heading = dialog.querySelector("h2")
+            return heading && heading.textContent.trim() === "New Project"
+        })
+    }
+
+    function syncNewProjectClose() {
+        if (!isWaitingForNewProjectClose) { return }
+
+        if (isNewProjectPopupOpen()) {
+            didSeeNewProjectPopup = true
+            return
+        }
+
+        if (!didSeeNewProjectPopup) { return }
+
+        isWaitingForNewProjectClose = false
+        didSeeNewProjectPopup = false
+        // TODO: show a loading spinner while the project list refreshes.
+        getInfo()
     }
 
     function convertfruittoshit(fruit) {
@@ -688,6 +734,7 @@ function homepagething() {
             didTryGetInfo = true
             setTimeout(getInfo, 3000)
         }
+        syncNewProjectClose()
         syncActiveProjectFromPopupDom()
         renderProjects()
         doTopbarstuff()
