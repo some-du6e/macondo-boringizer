@@ -192,6 +192,26 @@ function homepagething() {
         rightclickandextractfarmtile(target, true, e.clientX, e.clientY)
     }
 
+    function newprojectpopup(e) {
+        let target = document.getElementsByClassName("farm-tile-iso farm-tile-add")[0]
+
+        e.preventDefault()
+        if (!target) {
+            console.warn("macondo: new project tile not found for popup")
+            return
+        }
+
+
+        target.dispatchEvent(new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+            button: 0,
+            buttons: 1,
+            clientX: e.clientX,
+            clientY: e.clientY,
+        }));
+    }
+
     function projectpopup(projectId, e) {
         let normalizedProjectId = String(projectId)
         let escapedProjectId = window.CSS && CSS.escape ? CSS.escape(normalizedProjectId) : normalizedProjectId.replace(/"/g, '\\"')
@@ -214,7 +234,7 @@ function homepagething() {
         activeProjectPopupId = normalizedProjectId
         activeProjectPopupSnapshot = null
 
-        target.dispatchEvent(new MouseEvent('click', {
+        target.dispatchEvent(new MouseEvent('click', {  
             bubbles: true,
             cancelable: true,
             button: 0,
@@ -223,6 +243,9 @@ function homepagething() {
             clientY: e.clientY,
         }));
     }
+
+
+
 
     function newProjectCard() {
         let card = document.createElement("div")
@@ -234,7 +257,7 @@ function homepagething() {
         `
 
         card.addEventListener("click", function (e) {
-            //TODO
+            newprojectpopup(e)
         })
         return card
     }
