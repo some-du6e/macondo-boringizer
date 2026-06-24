@@ -224,6 +224,22 @@ function homepagething() {
         }));
     }
 
+    function newProjectCard() {
+        let card = document.createElement("div")
+        card.className = "group flex flex-col bg-parchment border-[3px] border-ds-brown/20 hover:border-ds-brown/60 cursor-pointer transition-colors h-full"
+        card.innerHTML = `
+        <div class="flex flex-1 flex-col items-center justify-center p-3">
+            <span class="font-bold text-ds-brown leading-tight text-6xl">+</span>
+        </div>
+        `
+
+        card.addEventListener("click", function (e) {
+            //TODO
+        })
+        return card
+    }
+
+
     function removeProjectFromDashboard(projectId) { // todo: test, i cant rn bc theres nothing to make a new project
         let normalizedProjectId = String(projectId)
         let oldProjects = information.projects || []
@@ -448,6 +464,7 @@ function homepagething() {
 
         if (fruit == "Pineapple") { return "pineapple/icon.webp"}
         if (fruit == "Mango") { return "mango/icon.webp" }
+        return "papaya/icon_interior.webp"
         
     }
 
@@ -627,7 +644,8 @@ function homepagething() {
         let projectsKey = projectsToRender.map(function(project) {
             return project.id || project.name || ""
         }).join("|")
-        if (projectsKey === renderedProjectsKey && projectsContainer.children.length === projectsToRender.length) {
+        let expectedProjectCardCount = projectsToRender.length + 1
+        if (projectsKey === renderedProjectsKey && projectsContainer.children.length === expectedProjectCardCount) {
             return
         }
         renderedProjectsKey = projectsKey
@@ -636,12 +654,15 @@ function homepagething() {
         for (let i = 0; i < projectsToRender.length; i++) {
             projectsContainer.appendChild(projectCard(projectsToRender[i]))
         }
+
+        projectsContainer.appendChild(newProjectCard())
     }
 
     function syncDashboard() {
         if (location.pathname !== "/dashboard") { return }
         prepareDashboard()
         if (!didTryGetInfo) {
+            didTryGetInfo = true
             setTimeout(getInfo, 3000)
         }
         syncActiveProjectFromPopupDom()
