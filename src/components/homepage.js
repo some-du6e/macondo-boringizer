@@ -732,7 +732,7 @@ function homepagething() {
         prepareDashboard()
         if (!didTryGetInfo) {
             didTryGetInfo = true
-            setTimeout(getInfo, 3000)
+            getInfo()
         }
         syncNewProjectClose()
         syncActiveProjectFromPopupDom()
