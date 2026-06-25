@@ -216,19 +216,19 @@ function homepagething() {
         return null
     }
 
-    async function projectcontextmenu(projectId, e) {
+    async function getProjectFarmTile(projectId) {
         let target = findProjectFarmTile(projectId)
+        if (target || isLinkingFarmAreas) { return target }
 
+        linkedFarmAreasKey = ""
+        await linkFarmAreasToProjects()
+        return findProjectFarmTile(projectId)
+    }
+
+    async function projectcontextmenu(projectId, e) {
         e.preventDefault()
 
-        if (!target && isLinkingFarmAreas) { return }
-
-        if (!target) {
-            linkedFarmAreasKey = ""
-            await linkFarmAreasToProjects()
-            target = findProjectFarmTile(projectId)
-        }
-
+        let target = await getProjectFarmTile(projectId)
         rightclickandextractfarmtile(target, true, e.clientX, e.clientY)
     }
 
@@ -254,22 +254,12 @@ function homepagething() {
         }));
     }
 
-    function projectpopup(projectId, e) {
+    async function projectpopup(projectId, e) {
         let normalizedProjectId = String(projectId)
-        let escapedProjectId = window.CSS && CSS.escape ? CSS.escape(normalizedProjectId) : normalizedProjectId.replace(/"/g, '\\"')
-        let projecttiles = document.querySelectorAll(`[data-macondo-project-id="${escapedProjectId}"]`)
-        let target = null
-        
-        for (let tile of projecttiles) {
-            if (tile.getAttribute("data-macondo-project-id") === normalizedProjectId) {
-                target = tile
-                break
-            }
-        }
 
         e.preventDefault()
+        let target = await getProjectFarmTile(projectId)
         if (!target) {
-            if (isLinkingFarmAreas) { return }
             console.warn("macondo: project tile not found for popup", normalizedProjectId)
             return
         }
@@ -662,13 +652,17 @@ function homepagething() {
     </div>
     <!---->
   </div>
-  <div class="flex flex-1 flex-col gap-2 p-3">
+  <div class="flex flex-1 flex-col gap-2 p-3 relative">
     <h3 class="text-base font-bold text-ds-brown leading-tight line-clamp-2">${projectName}</h3>
     <p class="text-xs text-ds-brown/70 leading-snug line-clamp-2">
       ${projectDescription}
     </p>
+    <img 
+      src="https://macondo.hackclub.com/images/fruits/papaya/etapa_2.webp"
+      class="w-12 max-w-full absolute right-3 top-3"
+    >
     <div class="flex items-center justify-between gap-2 mt-1">
-      
+
       <div class="flex items-center gap-1 shrink-0">
         <span
           class="px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${projectStatusColor} ">
