@@ -192,6 +192,7 @@ function homepagething() {
 
         e.preventDefault()
 
+        if (!target && isLinkingFarmAreas) { return }
         rightclickandextractfarmtile(target, true, e.clientX, e.clientY)
     }
 
@@ -232,6 +233,7 @@ function homepagething() {
 
         e.preventDefault()
         if (!target) {
+            if (isLinkingFarmAreas) { return }
             console.warn("macondo: project tile not found for popup", normalizedProjectId)
             return
         }
@@ -928,8 +930,8 @@ function homepagething() {
 
         let opener = findProfileOpener()
         if (!opener) {
-            console.warn("macondo: profile opener not found; going to profile page")
-            window.location.assign("/profile")
+            restoreGameWorldAfterFailure()
+            console.warn("macondo: profile opener not found")
             return
         }
 
@@ -955,10 +957,7 @@ function homepagething() {
 
             restoreGameWorldAfterFailure()
 
-            console.warn("macondo: profile popup did not open; going to profile page")
-            if (!iNEEDTHEFUCKINGOPOPUP) {
-                window.location.assign("/profile")
-            }
+            console.warn("macondo: profile popup did not open")
         }, 400)
     }
 
