@@ -530,11 +530,20 @@ function homepagething() {
     }
 
     function convertfruittoshit(fruit) {
-        if (fruit == "Papaya") { return "papaya/icon_interior.webp" }
-        if (fruit == "Coconut") { return "coco/icon_interior.webp"}
+        // Software
+        if (fruit == "Mango") { return "mango/icon.webp" } // l1
+        if (fruit == "Pineapple") { return "pineapple/icon.webp" } // l2
+        if (fruit == "Papaya") { return "papaya/icon_interior.webp" } // l3
+        if (fruit == "Cocoa") { return "cocoa/icon_interior.webp" } // l4
 
-        if (fruit == "Pineapple") { return "pineapple/icon.webp"}
-        if (fruit == "Mango") { return "mango/icon.webp" }
+        
+        // Hardware
+        if (fruit == "Guava") { return "guava/icon_interior.webp"} // l1
+        if (fruit == "Coconut") { return "coco/icon_interior.webp" } // l2
+        if (fruit == "Watermelon") { return "watermelon/icon_interior.webp" } // l3
+        if (fruit == "Avocado") { return "avocado/icon_interior.webp" } // l4
+
+
         return "papaya/icon_interior.webp"
         
     }
@@ -1012,6 +1021,10 @@ function homepagething() {
 
         topbar.classList.remove("absolute")
         topbar.classList.remove("pointer-events-none")
+        
+        topbar.classList.add("sticky")
+        // topbar.classList.add("sticky")
+        
         hideThemeToggle(topbar)
         addShopButton(topbar)
         addExploreButton(topbar)
