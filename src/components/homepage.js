@@ -60,9 +60,30 @@ function homepagething() {
         })
     }
 
+    function getFarmContextMenu() {
+        return document.getElementsByClassName("fixed bg-parchment border-[3px] border-ds-brown shadow-xl w-52 py-1")[0] || null
+    }
+
+    function hideNextFarmContextMenu() {
+        let observer = new MutationObserver(function() {
+            let contextMenu = getFarmContextMenu()
+            if (!contextMenu) { return }
+
+            contextMenu.classList.add("opacity-0")
+            observer.disconnect()
+        })
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        })
+
+        return observer
+    }
+
 
     async function closeFarmContextMenu() {
-        let contextMenu = document.getElementsByClassName("fixed bg-parchment border-[3px] border-ds-brown shadow-xl w-52 py-1")[0] || null
+        let contextMenu = getFarmContextMenu()
         if (!contextMenu) { return }
 
         document.dispatchEvent(new KeyboardEvent("keydown", {
@@ -73,7 +94,7 @@ function homepagething() {
         }))
         await wait(20)
 
-        let contextmenu2 = document.getElementsByClassName("fixed bg-parchment border-[3px] border-ds-brown shadow-xl w-52 py-1")[0] || null
+        let contextmenu2 = getFarmContextMenu()
         if (!contextmenu2) { return }
 
         let menuRect = contextMenu.getBoundingClientRect()
@@ -153,6 +174,7 @@ function homepagething() {
 
         await closeFarmContextMenu()
 
+        let hideContextMenuObserver = hideNextFarmContextMenu()
         let rect = tile.getBoundingClientRect()
         tile.dispatchEvent(new MouseEvent('contextmenu', {
             bubbles: true,
@@ -164,9 +186,12 @@ function homepagething() {
         }));
 
         await wait(50)
+        hideContextMenuObserver.disconnect()
 
-        let contextMenu = document.getElementsByClassName("fixed bg-parchment border-[3px] border-ds-brown shadow-xl w-52 py-1")[0] || null
+        let contextMenu = getFarmContextMenu()
         if (!contextMenu) { return null }
+
+        contextMenu.classList.add("opacity-0")
 
         let nameElement = contextMenu.getElementsByClassName("px-3 py-1.5 text-xs font-bold text-ds-brown/60 truncate")[0]
         let projectName = nameElement ? nameElement.textContent.trim() : null
@@ -177,22 +202,33 @@ function homepagething() {
     }
 
 
-    function projectcontextmenu(projectId, e) {
+    function findProjectFarmTile(projectId) {
         let normalizedProjectId = String(projectId)
         let escapedProjectId = window.CSS && CSS.escape ? CSS.escape(normalizedProjectId) : normalizedProjectId.replace(/"/g, '\\"')
         let projecttiles = document.querySelectorAll(`[data-macondo-project-id="${escapedProjectId}"]`)
-        let target = null
-        
+
         for (let tile of projecttiles) {
             if (tile.getAttribute("data-macondo-project-id") === normalizedProjectId) {
-                target = tile
-                break
+                return tile
             }
         }
+
+        return null
+    }
+
+    async function projectcontextmenu(projectId, e) {
+        let target = findProjectFarmTile(projectId)
 
         e.preventDefault()
 
         if (!target && isLinkingFarmAreas) { return }
+
+        if (!target) {
+            linkedFarmAreasKey = ""
+            await linkFarmAreasToProjects()
+            target = findProjectFarmTile(projectId)
+        }
+
         rightclickandextractfarmtile(target, true, e.clientX, e.clientY)
     }
 
