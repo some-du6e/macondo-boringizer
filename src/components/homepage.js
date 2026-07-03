@@ -574,6 +574,16 @@ function homepagething() {
         
     }
 
+    
+    function convertFruitStageToImage(fruit, stage) {
+        
+        return `${fruit.toLowerCase()}/etapa_${stage}.webp`
+
+        return "papaya/icon_interior.webp"
+        
+    }
+    
+
     function escapeHtml(value) {
         return String(value == null ? "" : value)
             .replace(/&/g, "&amp;")
@@ -597,6 +607,7 @@ function homepagething() {
         let projectImage = project.thumbnail_url || null
         let projectFruit = project.fruit || "Papaya"
         let fruitSlug = convertfruittoshit(String(projectFruit))
+        let fruitStageImage = convertFruitStageToImage(String(projectFruit), project.stage || 1)
         let projectStreak = project.project_streak_days || null
         projectName = escapeHtml(projectName)
         projectDescription = escapeHtml(projectDescription)
@@ -659,7 +670,7 @@ function homepagething() {
       ${projectDescription}
     </p>
     <img 
-      src="https://macondo.hackclub.com/images/fruits/papaya/etapa_2.webp"
+      src="/images/fruits/${fruitStageImage}"
       class="w-12 max-w-full absolute right-3 top-3"
     >
     <div class="flex items-center justify-between gap-2 mt-1">
@@ -908,7 +919,7 @@ function homepagething() {
                 if (!info.user.id || info.user.id === "not found") {
                     throw new Error("auth/me did not return user id")
                 }
-                return fetch(`api/users/${info.user.id}`, { credentials: "include" })
+                return fetch(`api/projects`, { credentials: "include" })
             })
             .then(function(response) {
                 if (!response.ok) {
@@ -917,7 +928,7 @@ function homepagething() {
                 return response.json()
             })
             .then(function(projectsData) {
-                info.projects = projectsData.projects || []
+                info.projects = projectsData || []
                 didLoadProjects = true
                 information = info
                 renderProjects()
