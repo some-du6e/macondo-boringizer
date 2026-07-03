@@ -148,3 +148,4 @@ testingdata/
 testresults.md
 shopitemsdumpy.js
 cookies.json
+.DS_Store

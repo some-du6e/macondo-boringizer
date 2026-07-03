@@ -606,6 +606,7 @@ function homepagething() {
         projectVotes = escapeHtml(projectVotes)
         projectImage = escapeHtml(projectImage)
         projectStreak = projectStreak == null ? "No" : String(projectStreak) + "d"
+        let grayedStreak = projectStreak === "No" ? "grayscale opacity-50" : ""
         projectStreak = escapeHtml(projectStreak)
         projectFruit = escapeHtml(projectFruit)
         fruitSlug = escapeHtml(fruitSlug)
@@ -635,7 +636,7 @@ function homepagething() {
         stroke-width="2"
         stroke-linecap="round"
         stroke-linejoin="round"
-        class="lucide w-3 h-3 text-ds-danger lucide-flame-icon lucide-flame w-3 h-3 text-ds-danger"
+        class="lucide w-3 h-3 text-ds-danger lucide-flame-icon lucide-flame w-3 h-3 text-ds-danger ${grayedStreak}"
         aria-hidden="true">
         <path
           d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"></path>
@@ -1067,6 +1068,41 @@ function homepagething() {
             leftside.appendChild(pfp)
         }
 
+
+        let possiblemoneydivs = document.getElementsByClassName("flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-parchment/90 backdrop-blur-sm border-[3px] border-ds-brown transition-transform duration-200")
+        let moneydiv = null
+        for (let possibility of possiblemoneydivs) {
+            let img = possibility.children[0]
+            if (img.src.endsWith("money.webp")) {
+                moneydiv = possibility
+                break
+            }
+        }
+
+        // maybe remove this after when u got the correct commit and not retrased
+        if (moneydiv) {
+            if (moneydiv.tagName === "A") { // we have alr done it
+                console.log("macondo: money div is already a link")
+                moneydiv = null
+            }
+        }
+
+
+
+
+        if (moneydiv) {
+            console.log("macondo: found money div", moneydiv)
+
+            
+            let newmoneydiv = document.createElement("a")
+            newmoneydiv.className = moneydiv.className
+            newmoneydiv.innerHTML = moneydiv.innerHTML
+            moneydiv.replaceWith(newmoneydiv)
+
+            moneydiv = newmoneydiv
+
+            moneydiv.href = "/currency"
+        }
 
     }
 
