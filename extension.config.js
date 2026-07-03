@@ -7,7 +7,7 @@ const ciFlags = process.env.CI ? ['--no-sandbox', '--disable-gpu'] : []
 export default {
   browser: {
     chrome: {profile: profile('chrome'), browserFlags: ciFlags},
-    chromium: {profile: profile('chromium'), browserFlags: ciFlags},
+    chromium: {profile: profile('chromium'), browserFlags: ciFlags, persistProfile: true},
     edge: {profile: profile('edge'), browserFlags: ciFlags},
     firefox: {profile: profile('firefox')},
     'chromium-based': {

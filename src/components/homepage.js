@@ -27,7 +27,7 @@ function homepagething() {
     let placeholderProjects = [
         {
             "id": "placeholder-1",
-            "name": "YO PLEASE WAIT", // TODO: loading bar
+            "name": "YO PLEASEe WAIT", // TODO: loading bar
             "author": "",
             "description": "im loading yo shi gng wait a sec",
             "status": "Shipped",
@@ -1093,7 +1093,7 @@ function homepagething() {
         // maybe remove this after when u got the correct commit and not retrased
         if (moneydiv) {
             if (moneydiv.tagName === "A") { // we have alr done it
-                console.log("macondo: money div is already a link")
+                console.log("macondo: money div is already GAYYY")
                 moneydiv = null
             }
         }

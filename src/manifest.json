@@ -9,14 +9,13 @@
         "16": "icons/icon16.png",
         "32": "icons/icon32.png",
         "48": "icons/icon48.png",
-        "64": "icons/icon64.png",
         "128": "icons/icon128.png"
     },
     "host_permissions": ["<all_urls>"],
     "content_scripts": [
         {
             "matches": ["*://macondo.hackclub.com/*"],
-            "js": ["components/homepage.ts"],
+            "js": ["components/homepage.js"],
             "run_at": "document_idle"
         }
     ]
