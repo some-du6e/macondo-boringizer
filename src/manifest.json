@@ -15,7 +15,7 @@
     "content_scripts": [
         {
             "matches": ["*://macondo.hackclub.com/*"],
-            "js": ["components/homepage.js"],
+            "js": ["components/homepage.ts"],
             "run_at": "document_idle"
         }
     ]

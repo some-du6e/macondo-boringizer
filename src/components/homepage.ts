@@ -1,3 +1,43 @@
+interface Window {
+    macondo: {
+        homepagethingObserver?: MutationObserver
+    }
+}
+
+type Project = {
+    id?: string | number | null
+    name?: string | null
+    author?: string | null
+    description?: string | null
+    status?: string | null
+    type?: string | null
+    level?: string | number | null
+    votes?: string | number | null
+    upvotes?: string | number | null
+    image?: string | null
+    thumbnail_url?: string | null
+    pfp?: string | null
+    fruit?: string | null
+    stage?: string | number | null
+    has_shipped?: boolean | null
+    project_streak_days?: string | number | null
+}
+
+type Information = {
+    user: {
+        name: string
+        pfp: string
+        id?: string
+    }
+    projects: Project[]
+}
+
+type GameWorldState = {
+    hidden: boolean
+    opacity: string
+    pointerEvents: string
+}
+
 function homepagething() {
     window.macondo = window.macondo || {}
     if (location.pathname !== "/dashboard") { return }
@@ -14,17 +54,16 @@ function homepagething() {
     // https://github.com/SabioOfficial/MacondoPlus
     // utils
 
-    let projects = {}
     let customProjectsId = "macondo-boringizer-projects"
     let defaultProfilePfp = "https://cachet.dunkirk.sh/users/U091HC53CE8/r"
-    let information = {
+    let information: Information = {
         "user": {
             "name": "not found",
             "pfp": defaultProfilePfp
         },
         "projects": []
     }
-    let placeholderProjects = [
+    let placeholderProjects: Project[] = [
         {
             "id": "placeholder-1",
             "name": "YO PLEASEe WAIT", // TODO: loading bar
@@ -44,9 +83,9 @@ function homepagething() {
     let renderedProjectsKey = ""
     let linkedFarmAreasKey = ""
     let isLinkingFarmAreas = false
-    let activeProjectPopupId = null
-    let activeProjectPopupSnapshot = null
-    let pendingDeleteProjectId = null
+    let activeProjectPopupId: string | null = null
+    let activeProjectPopupSnapshot: string | null = null
+    let pendingDeleteProjectId: string | null = null
     let isWaitingForNewProjectClose = false
     let didSeeNewProjectPopup = false
     // TODO: show a small loading spinner while farm links are being resolved.
@@ -54,7 +93,7 @@ function homepagething() {
     // linkedFarmAreasKey matches the current farm tile/project key.
 
 
-    function wait(ms) {
+    function wait(ms: number) {
         return new Promise(function(resolve) {
             setTimeout(resolve, ms)
         })
@@ -154,7 +193,7 @@ function homepagething() {
         await wait(20)
     }
 
-    async function rightclickandextractfarmtile(tile, justrightclick, x, y) {
+    async function rightclickandextractfarmtile(tile: Element | null, justrightclick = false, x: number | null = null, y: number | null = null): Promise<string | null> {
         if (!tile) {
             console.warn("macondo: farm tile not found for project context menu")
             return null
@@ -166,8 +205,8 @@ function homepagething() {
                 cancelable: true,
                 button: 2,
                 buttons: 2,
-                clientX: x,
-                clientY: y,
+                clientX: x ?? 0,
+                clientY: y ?? 0,
             }));
             return null
         }
@@ -194,7 +233,7 @@ function homepagething() {
         contextMenu.classList.add("opacity-0")
 
         let nameElement = contextMenu.getElementsByClassName("px-3 py-1.5 text-xs font-bold text-ds-brown/60 truncate")[0]
-        let projectName = nameElement ? nameElement.textContent.trim() : null
+        let projectName = nameElement ? nameElement.textContent?.trim() : null
 
         await closeFarmContextMenu()
 
@@ -202,7 +241,7 @@ function homepagething() {
     }
 
 
-    function findProjectFarmTile(projectId) {
+    function findProjectFarmTile(projectId: string | number | null | undefined) {
         let normalizedProjectId = String(projectId)
         let escapedProjectId = window.CSS && CSS.escape ? CSS.escape(normalizedProjectId) : normalizedProjectId.replace(/"/g, '\\"')
         let projecttiles = document.querySelectorAll(`[data-macondo-project-id="${escapedProjectId}"]`)
@@ -216,7 +255,7 @@ function homepagething() {
         return null
     }
 
-    async function getProjectFarmTile(projectId) {
+    async function getProjectFarmTile(projectId: string | number | null | undefined) {
         let target = findProjectFarmTile(projectId)
         if (target || isLinkingFarmAreas) { return target }
 
@@ -225,14 +264,14 @@ function homepagething() {
         return findProjectFarmTile(projectId)
     }
 
-    async function projectcontextmenu(projectId, e) {
+    async function projectcontextmenu(projectId: string | number | null | undefined, e: MouseEvent) {
         e.preventDefault()
 
         let target = await getProjectFarmTile(projectId)
         rightclickandextractfarmtile(target, true, e.clientX, e.clientY)
     }
 
-    function newprojectpopup(e) {
+    function newprojectpopup(e: MouseEvent) {
         let target = document.getElementsByClassName("farm-tile-iso farm-tile-add")[0]
 
         e.preventDefault()
@@ -254,7 +293,7 @@ function homepagething() {
         }));
     }
 
-    async function projectpopup(projectId, e) {
+    async function projectpopup(projectId: string | number | null | undefined, e: MouseEvent) {
         let normalizedProjectId = String(projectId)
 
         e.preventDefault()
@@ -296,7 +335,7 @@ function homepagething() {
     }
 
 
-    function removeProjectFromDashboard(projectId) { // todo: test, i cant rn bc theres nothing to make a new project
+    function removeProjectFromDashboard(projectId: string | number | null | undefined) { // todo: test, i cant rn bc theres nothing to make a new project
         let normalizedProjectId = String(projectId)
         let oldProjects = information.projects || []
         let newProjects = oldProjects.filter(function(project) {
@@ -312,7 +351,7 @@ function homepagething() {
         linkFarmAreasToProjects()
     }
 
-    function updateProjectInDashboard(projectData) {
+    function updateProjectInDashboard(projectData: Project) {
         if (!projectData || projectData.id == null) { return }
 
         let normalizedProjectId = String(projectData.id)
@@ -337,7 +376,7 @@ function homepagething() {
         let popup = document.querySelector(".modal-frame")
         if (!popup) { return }
 
-        let updatedProject = {
+        let updatedProject: Project = {
             id: activeProjectPopupId
         }
         let didFindChange = false
@@ -371,17 +410,18 @@ function homepagething() {
         }
     }
 
-    function isDeleteConfirmDialog(element) {
+    function isDeleteConfirmDialog(element: Element | null) {
         let dialog = element && element.closest ? element.closest('[role="dialog"]') : null
         if (!dialog) { return false }
 
         let heading = dialog.querySelector("h2")
-        return !!heading && heading.textContent.trim() === "Delete Project"
+        return !!heading && heading.textContent?.trim() === "Delete Project"
     }
 
-    function watchProjectDeleteClick(event) {
-        let button = event.target && event.target.closest ? event.target.closest("button") : null
-        if (!button || button.textContent.trim() !== "Delete Project") { return }
+    function watchProjectDeleteClick(event: MouseEvent) {
+        let target = event.target instanceof Element ? event.target : null
+        let button = target ? target.closest("button") : null
+        if (!button || button.textContent?.trim() !== "Delete Project") { return }
         if (!activeProjectPopupId && !pendingDeleteProjectId) { return }
 
         if (!isDeleteConfirmDialog(button)) {
@@ -416,7 +456,7 @@ function homepagething() {
         })
     }
 
-    function shoppopup(e) {
+    function shoppopup(e?: MouseEvent) {
         if (e && (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)) {
             return
         }
@@ -428,11 +468,11 @@ function homepagething() {
         console.log("macondo: opening shop popup")
         if (isShopModalOpen()) { return }
 
-        let gameWorld = document.querySelector(".game-world")
-        let oldGameWorldState = null
+        let gameWorld = document.querySelector<HTMLElement>(".game-world")
+        let oldGameWorldState: GameWorldState | null = null
         if (gameWorld) {
             oldGameWorldState = {
-                hidden: gameWorld.hidden,
+                hidden: Boolean(gameWorld.hidden),
                 opacity: gameWorld.style.opacity,
                 pointerEvents: gameWorld.style.pointerEvents
             }
@@ -479,7 +519,7 @@ function homepagething() {
     async function linkFarmAreasToProjects() {
         if (isLinkingFarmAreas) { return }
 
-        let areas = document.getElementsByClassName("farm-tile-project")
+        let areas = document.getElementsByClassName("farm-tile-project") as HTMLCollectionOf<HTMLElement>
         let projectList = information.projects || []
         let linkKey = Array.from(areas).map(function(area) {
             return [
@@ -511,7 +551,7 @@ function homepagething() {
                 
                 for (let project in projectList) {
                     if (projectList[project].name === projectName) {
-                        area.setAttribute("data-macondo-project-id", projectList[project].id)
+                        area.setAttribute("data-macondo-project-id", String(projectList[project].id))
                         break
                     }
                 }
@@ -555,7 +595,7 @@ function homepagething() {
         getInfo()
     }
 
-    function convertfruittoshit(fruit) {
+    function convertfruittoshit(fruit: string) {
         // Software
         if (fruit == "Mango") { return "mango/icon.webp" } // l1
         if (fruit == "Pineapple") { return "pineapple/icon.webp" } // l2
@@ -575,7 +615,7 @@ function homepagething() {
     }
 
     
-    function convertFruitStageToImage(fruit, stage) {
+    function convertFruitStageToImage(fruit: string, stage: string | number) {
         
         return `${fruit.toLowerCase()}/etapa_${stage}.webp`
 
@@ -584,7 +624,7 @@ function homepagething() {
     }
     
 
-    function escapeHtml(value) {
+    function escapeHtml(value: unknown) {
         return String(value == null ? "" : value)
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
@@ -595,7 +635,7 @@ function homepagething() {
 
 
 
-    function projectCard(project) {
+    function projectCard(project: Project) {
         project = project || {}
         let projectName = project.name || "Untitled project"
         let projectDescription = project.description || "No description yet."
@@ -738,13 +778,13 @@ function homepagething() {
 
 
     function prepareDashboard() {
-        let mainContainer = document.getElementsByClassName("fixed inset-0 overflow-hidden bg-parchment")[0]
+        let mainContainer = document.getElementsByClassName("fixed inset-0 overflow-hidden bg-parchment")[0] as HTMLElement | undefined
         if (mainContainer) {
             mainContainer.style.overflowY = "auto"
             mainContainer.style.overflowX = "hidden"
         }
 
-        let gameword = document.querySelector(".game-world")
+        let gameword = document.querySelector<HTMLElement>(".game-world")
         if (gameword) {
             gameword.hidden = true
         }
@@ -805,7 +845,7 @@ function homepagething() {
             return
         }
 
-        let close_button = popup.getElementsByClassName("text-sm text-ds-brown flex items-center gap-1 hover:opacity-70 transition-opacity")[0]
+        let close_button = popup.getElementsByClassName("text-sm text-ds-brown flex items-center gap-1 hover:opacity-70 transition-opacity")[0] as HTMLElement | undefined
         if (!close_button) {
             console.warn("macondo: popup close button not found")
             return
@@ -815,10 +855,10 @@ function homepagething() {
     }
     function makepfp() {
         let pfpUrl = information.user && information.user.pfp ? information.user.pfp : defaultProfilePfp
-        let existingPfp = document.getElementById("macondo-boringizer-pfp")
+        let existingPfp = document.getElementById("macondo-boringizer-pfp") as HTMLAnchorElement | null
         if (existingPfp) {
             if (existingPfp.dataset.macondoProfileLinkReady !== "true") {
-                let cleanPfp = existingPfp.cloneNode(true)
+                let cleanPfp = existingPfp.cloneNode(true) as HTMLAnchorElement
                 existingPfp.replaceWith(cleanPfp)
                 existingPfp = cleanPfp
             }
@@ -859,7 +899,7 @@ function homepagething() {
 
     function getInfo() {
         didTryGetInfo = true
-        let info = {
+        let info: Information = {
             "user": {
                 "name": "not found",
                 "pfp": defaultProfilePfp,
@@ -868,7 +908,7 @@ function homepagething() {
             "projects": []
         }
 
-        function findImageUrl(value) {
+        function findImageUrl(value: unknown): string | null {
             if (!value) { return null }
             if (typeof value === "string") {
                 if (/^https?:\/\/.+\.(webp|png|jpe?g|gif)(\?.*)?$/i.test(value) || value.includes("cachet.dunkirk.sh") || value.includes("l4.dunkirk.sh")) {
@@ -878,19 +918,20 @@ function homepagething() {
             }
             if (Array.isArray(value)) {
                 for (let item of value) {
-                    let found = findImageUrl(item)
+                    let found: string | null = findImageUrl(item)
                     if (found) { return found }
                 }
                 return null
             }
             if (typeof value === "object") {
                 let likelyKeys = ["pfp", "avatar", "avatarUrl", "avatar_url", "image", "imageUrl", "image_url", "photo", "photoUrl", "photo_url", "picture"]
+                let record = value as Record<string, unknown>
                 for (let key of likelyKeys) {
-                    let found = findImageUrl(value[key])
+                    let found: string | null = findImageUrl(record[key])
                     if (found) { return found }
                 }
-                for (let key of Object.keys(value)) {
-                    let found = findImageUrl(value[key])
+                for (let key of Object.keys(record)) {
+                    let found: string | null = findImageUrl(record[key])
                     if (found) { return found }
                 }
             }
@@ -904,9 +945,9 @@ function homepagething() {
                 }
                 return response.json()
             })
-            .then(function (userInfo) {
-                info.user.name = userInfo.name || info.user.name
-                info.user.id = userInfo.id || info.user.id
+            .then(function (userInfo: Record<string, unknown>) {
+                info.user.name = typeof userInfo.name === "string" ? userInfo.name : info.user.name
+                info.user.id = typeof userInfo.id === "string" ? userInfo.id : info.user.id
                 let pfp = findImageUrl(userInfo)
                 if (pfp) {
                     info.user.pfp = pfp
@@ -927,7 +968,7 @@ function homepagething() {
                 }
                 return response.json()
             })
-            .then(function(projectsData) {
+            .then(function(projectsData: Project[]) {
                 info.projects = projectsData || []
                 didLoadProjects = true
                 information = info
@@ -954,7 +995,7 @@ function homepagething() {
         })
     }
 
-    function openProfilePopup(event, iNEEDTHEFUCKINGOPOPUP, invisible) {
+    function openProfilePopup(event?: MouseEvent) {
         if (event && (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)) {
             return
         }
@@ -966,11 +1007,11 @@ function homepagething() {
         console.log("macondo: opening profile popup")
         if (isProfileModalOpen()) { return }
 
-        let gameWorld = document.querySelector(".game-world")
-        let oldGameWorldState = null
+        let gameWorld = document.querySelector<HTMLElement>(".game-world")
+        let oldGameWorldState: GameWorldState | null = null
         if (gameWorld) {
             oldGameWorldState = {
-                hidden: gameWorld.hidden,
+                hidden: Boolean(gameWorld.hidden),
                 opacity: gameWorld.style.opacity,
                 pointerEvents: gameWorld.style.pointerEvents
             }
@@ -1012,17 +1053,17 @@ function homepagething() {
         }, 400)
     }
 
-    function hideThemeToggle(topbar) {
-        let themeToggle = topbar.querySelector('[role="group"][aria-label="Day and night mode"]')
+    function hideThemeToggle(topbar: HTMLElement) {
+        let themeToggle = topbar.querySelector<HTMLElement>('[role="group"][aria-label="Day and night mode"]')
         if (!themeToggle) { return }
         themeToggle.style.display = "none"
         themeToggle.setAttribute("aria-hidden", "true")
     }
 
-    function addShopButton(topbar) {
+    function addShopButton(topbar: HTMLElement) {
         if (document.getElementById("macondo-boringizer-shop-button")) { return }
 
-        let docsLink = topbar.querySelector('a[href="/docs"]')
+        let docsLink = topbar.querySelector<HTMLAnchorElement>('a[href="/docs"]')
         let notificationsButton = topbar.querySelector('button[aria-label="Notifications"]')
         if (!docsLink || !notificationsButton || !notificationsButton.parentElement || !notificationsButton.parentElement.parentElement) { return }
 
@@ -1039,10 +1080,10 @@ function homepagething() {
     }
 
 
-    function addExploreButton(topbar) {
+    function addExploreButton(topbar: HTMLElement) {
         if (document.getElementById("macondo-boringizer-explore-button")) { return }
 
-        let docsLink = topbar.querySelector('a[href="/docs"]')
+        let docsLink = topbar.querySelector<HTMLAnchorElement>('a[href="/docs"]')
         let notificationsButton = topbar.querySelector('button[aria-label="Notifications"]')
         if (!docsLink || !notificationsButton || !notificationsButton.parentElement || !notificationsButton.parentElement.parentElement) { return }
 
@@ -1056,7 +1097,7 @@ function homepagething() {
     }
 
     function doTopbarstuff() {
-        let topbar = document.getElementById("macondo-boringizer-topbar") || document.getElementsByClassName("absolute top-0 left-0 right-0 z-[100] pointer-events-none")[0]
+        let topbar = document.getElementById("macondo-boringizer-topbar") || document.getElementsByClassName("absolute top-0 left-0 right-0 z-[100] pointer-events-none")[0] as HTMLElement | undefined
         if (!topbar) { console.error("boring: topbar not found! ID:1s9f8g"); return }
 
         topbar.id = "macondo-boringizer-topbar"
@@ -1071,7 +1112,8 @@ function homepagething() {
         addShopButton(topbar)
         addExploreButton(topbar)
 
-        let leftside = topbar.children[0].children[0]
+        let leftside = topbar.children[0]?.children[0] as HTMLElement | undefined
+        if (!leftside) { return }
         leftside.id = "macondo-boringizer-leftside"
 
         let pfp = makepfp()
@@ -1080,10 +1122,11 @@ function homepagething() {
         }
 
 
-        let possiblemoneydivs = document.getElementsByClassName("flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-parchment/90 backdrop-blur-sm border-[3px] border-ds-brown transition-transform duration-200")
-        let moneydiv = null
+        let possiblemoneydivs = document.getElementsByClassName("flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-parchment/90 backdrop-blur-sm border-[3px] border-ds-brown transition-transform duration-200") as HTMLCollectionOf<HTMLElement>
+        let moneydiv: HTMLElement | null = null
         for (let possibility of possiblemoneydivs) {
-            let img = possibility.children[0]
+            let img = possibility.children[0] as HTMLImageElement | undefined
+            if (!img) { continue }
             if (img.src.endsWith("money.webp")) {
                 moneydiv = possibility
                 break
@@ -1108,18 +1151,17 @@ function homepagething() {
             let newmoneydiv = document.createElement("a")
             newmoneydiv.className = moneydiv.className
             newmoneydiv.innerHTML = moneydiv.innerHTML
+            newmoneydiv.href = "/currency"
             moneydiv.replaceWith(newmoneydiv)
 
             moneydiv = newmoneydiv
-
-            moneydiv.href = "/currency"
         }
 
     }
 
     syncDashboard()
 
-    let syncTimeout
+    let syncTimeout: ReturnType<typeof setTimeout> | undefined
     window.macondo.homepagethingObserver = new MutationObserver(function() {
         clearTimeout(syncTimeout)
         syncTimeout = setTimeout(syncDashboard, 50)
