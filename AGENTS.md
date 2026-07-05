@@ -5,6 +5,8 @@
 1.75. DONT REFRESH THE PAGE
 2. DONT OvER FUCK  OVER COMPLICATE ITTTTT
 3. DONT GUESS RANDOM SHIT ABOUT THE PAGE WITH UR PUSSY ASS TEXT GUESSING METHODS. JSUT ASK THE USER FOR THE FUCKING HTML
+4. WE ARE USING BUN AND EXTENSION.JS (`extension`) TO BUILD THSI SHIT
+5. USE `bunx tsc --noEmit` TO CHECK YOUR CODE AND FIX IT UNTIL ITS FINE
 
 
 
@@ -14,3 +16,9 @@ FOR POPUPS, COPY THE WORKING PATTERN EXACTLY:
     - click the hidden real action button like "Open your profile" / "Open the shop"
     - DO NOT click random visual areas like .donkey-area unless the HTML proves that is the actual opener
     - if one popup works, mirror that opener-finding pattern for the other popup
+
+
+## docs
+- extension.js
+    - https://extensionjs.mintlify.app/llms.txt
+- 

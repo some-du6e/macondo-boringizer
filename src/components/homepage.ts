@@ -1,6 +1,7 @@
 import { doTopbarstuff } from "./topbar"
 import type { Project, Information, GameWorldState } from "./types"
-import { defaultProfilePfp } from "./consts.ts" // TODO: temp
+import { defaultProfilePfp, placeholderProjects } from "./consts.ts" // TODO: temp
+import { shoppopup, openProfilePopup, newprojectpopup, projectcontextmenu, projectpopup, setProjectPopupHooks } from "./popups"
 function homepagething() {
     window.macondo = window.macondo || {}
     if (location.pathname !== "/dashboard") { return }
@@ -25,21 +26,7 @@ function homepagething() {
         },
         "projects": []
     }
-    let placeholderProjects: Project[] = [
-        {
-            "id": "placeholder-1",
-            "name": "YO PLEASEe WAIT", // TODO: loading bar
-            "author": "",
-            "description": "im loading yo shi gng wait a sec",
-            "status": "Shipped",
-            "type": "software",
-            "level": "3",
-            "votes": 8,
-            "image": "https://media.tenor.com/WX_LDjYUrMsAAAAi/loading.gif",
-            "pfp": "https://l4.dunkirk.sh/i/5DjfoBI58Pfw.webp",
-            "fruit": "Papaya"
-        }
-    ]
+    
     let didTryGetInfo = false
     let didLoadProjects = false
     let renderedProjectsKey = ""
@@ -53,6 +40,27 @@ function homepagething() {
     // TODO: show a small loading spinner while farm links are being resolved.
     // It can be considered done when isLinkingFarmAreas is false and
     // linkedFarmAreasKey matches the current farm tile/project key.
+
+    setProjectPopupHooks({
+        isLinkingFarmAreas: function() {
+            return isLinkingFarmAreas
+        },
+        resetLinkedFarmAreasKey: function() {
+            linkedFarmAreasKey = ""
+        },
+        linkFarmAreasToProjects: function() {
+            return linkFarmAreasToProjects()
+        },
+        rightclickandextractfarmtile: rightclickandextractfarmtile,
+        setNewProjectCloseWait: function(isWaiting, didSeePopup) {
+            isWaitingForNewProjectClose = isWaiting
+            didSeeNewProjectPopup = didSeePopup
+        },
+        setActiveProjectPopup: function(projectId, snapshot) {
+            activeProjectPopupId = projectId
+            activeProjectPopupSnapshot = snapshot
+        }
+    })
 
 
     function wait(ms: number) {
@@ -203,80 +211,7 @@ function homepagething() {
     }
 
 
-    function findProjectFarmTile(projectId: string | number | null | undefined) {
-        let normalizedProjectId = String(projectId)
-        let escapedProjectId = window.CSS && CSS.escape ? CSS.escape(normalizedProjectId) : normalizedProjectId.replace(/"/g, '\\"')
-        let projecttiles = document.querySelectorAll(`[data-macondo-project-id="${escapedProjectId}"]`)
-
-        for (let tile of projecttiles) {
-            if (tile.getAttribute("data-macondo-project-id") === normalizedProjectId) {
-                return tile
-            }
-        }
-
-        return null
-    }
-
-    async function getProjectFarmTile(projectId: string | number | null | undefined) {
-        let target = findProjectFarmTile(projectId)
-        if (target || isLinkingFarmAreas) { return target }
-
-        linkedFarmAreasKey = ""
-        await linkFarmAreasToProjects()
-        return findProjectFarmTile(projectId)
-    }
-
-    async function projectcontextmenu(projectId: string | number | null | undefined, e: MouseEvent) {
-        e.preventDefault()
-
-        let target = await getProjectFarmTile(projectId)
-        rightclickandextractfarmtile(target, true, e.clientX, e.clientY)
-    }
-
-    function newprojectpopup(e: MouseEvent) {
-        let target = document.getElementsByClassName("farm-tile-iso farm-tile-add")[0]
-
-        e.preventDefault()
-        if (!target) {
-            console.warn("macondo: new project tile not found for popup")
-            return
-        }
-
-        isWaitingForNewProjectClose = true
-        didSeeNewProjectPopup = false
-
-        target.dispatchEvent(new MouseEvent('click', {
-            bubbles: true,
-            cancelable: true,
-            button: 0,
-            buttons: 1,
-            clientX: e.clientX,
-            clientY: e.clientY,
-        }));
-    }
-
-    async function projectpopup(projectId: string | number | null | undefined, e: MouseEvent) {
-        let normalizedProjectId = String(projectId)
-
-        e.preventDefault()
-        let target = await getProjectFarmTile(projectId)
-        if (!target) {
-            console.warn("macondo: project tile not found for popup", normalizedProjectId)
-            return
-        }
-
-        activeProjectPopupId = normalizedProjectId
-        activeProjectPopupSnapshot = null
-
-        target.dispatchEvent(new MouseEvent('click', {  
-            bubbles: true,
-            cancelable: true,
-            button: 0,
-            buttons: 1,
-            clientX: e.clientX,
-            clientY: e.clientY,
-        }));
-    }
+    
 
 
 
@@ -735,25 +670,7 @@ function homepagething() {
 
     }
 
-    // DONT DELETE
-    // for later use
-    function closePopup() {
-        console.log("macondo: closing popup")
-
-        let popup = document.getElementsByClassName("relative pl-5 pt-4 pr-6 pb-6 flex flex-col modal-frame relative w-full max-w-6xl mx-4 pointer-events-auto max-h-[90vh]")[0]
-        if (!popup) {
-            console.warn("macondo: popup not found; cannot close")
-            return
-        }
-
-        let close_button = popup.getElementsByClassName("text-sm text-ds-brown flex items-center gap-1 hover:opacity-70 transition-opacity")[0] as HTMLElement | undefined
-        if (!close_button) {
-            console.warn("macondo: popup close button not found")
-            return
-        }
-
-        close_button.click()
-    }
+    
     
 
     
