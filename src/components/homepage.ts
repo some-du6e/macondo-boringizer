@@ -2,6 +2,7 @@ import { doTopbarstuff } from "./topbar"
 import type { Project, Information, GameWorldState } from "./types"
 import { defaultProfilePfp } from "./consts.ts" // TODO: temp
 import { renderProjects, prepareDashboard, resetProjectsRenderCache } from "./projects"
+import { getInfo } from "./info"
 import { setProjectPopupHooks } from "./popups"
 function homepagething() {
     window.macondo = window.macondo || {}
@@ -415,7 +416,16 @@ function homepagething() {
         isWaitingForNewProjectClose = false
         didSeeNewProjectPopup = false
         // TODO: show a loading spinner while the project list refreshes.
-        getInfo()
+        loadInfo()
+    }
+
+    function loadInfo() {
+        getInfo(didTryGetInfo, information, didLoadProjects, function() {
+            didLoadProjects = true
+            resetProjectsRenderCache()
+            renderProjects(information, didLoadProjects)
+            linkFarmAreasToProjects()
+        })
     }
 
 
@@ -424,7 +434,7 @@ function homepagething() {
         prepareDashboard()
         if (!didTryGetInfo) {
             didTryGetInfo = true
-            getInfo()
+            loadInfo()
         }
         syncNewProjectClose()
         syncActiveProjectFromPopupDom()
@@ -438,93 +448,7 @@ function homepagething() {
 
     
 
-    function getInfo() {
-        didTryGetInfo = true
-        let info: Information = {
-            "user": {
-                "name": "not found",
-                "pfp": defaultProfilePfp,
-                "id": "not found"
-            },
-            "projects": []
-        }
-
-        function findImageUrl(value: unknown): string | null {
-            if (!value) { return null }
-            if (typeof value === "string") {
-                if (/^https?:\/\/.+\.(webp|png|jpe?g|gif)(\?.*)?$/i.test(value) || value.includes("cachet.dunkirk.sh") || value.includes("l4.dunkirk.sh")) {
-                    return value
-                }
-                return null
-            }
-            if (Array.isArray(value)) {
-                for (let item of value) {
-                    let found: string | null = findImageUrl(item)
-                    if (found) { return found }
-                }
-                return null
-            }
-            if (typeof value === "object") {
-                let likelyKeys = ["pfp", "avatar", "avatarUrl", "avatar_url", "image", "imageUrl", "image_url", "photo", "photoUrl", "photo_url", "picture"]
-                let record = value as Record<string, unknown>
-                for (let key of likelyKeys) {
-                    let found: string | null = findImageUrl(record[key])
-                    if (found) { return found }
-                }
-                for (let key of Object.keys(record)) {
-                    let found: string | null = findImageUrl(record[key])
-                    if (found) { return found }
-                }
-            }
-            return null
-        }
-
-        fetch("/api/auth/me", { credentials: "include" })
-            .then(function(response) {
-                if (!response.ok) {
-                    throw new Error("auth/me returned " + response.status)
-                }
-                return response.json()
-            })
-            .then(function (userInfo: Record<string, unknown>) {
-                info.user.name = typeof userInfo.name === "string" ? userInfo.name : info.user.name
-                info.user.id = typeof userInfo.id === "string" ? userInfo.id : info.user.id
-                let pfp = findImageUrl(userInfo)
-                if (pfp) {
-                    info.user.pfp = pfp
-                    
-                } else {
-                    console.warn("macondo: no profile image found in /api/auth/me; using default profile")
-                }
-                information = info
-                doTopbarstuff(information)
-                if (!info.user.id || info.user.id === "not found") {
-                    throw new Error("auth/me did not return user id")
-                }
-                return fetch(`api/projects`, { credentials: "include" })
-            })
-            .then(function(response) {
-                if (!response.ok) {
-                    throw new Error("api/projects returned " + response.status)
-                }
-                return response.json()
-            })
-            .then(function(projectsData: Project[]) {
-                info.projects = projectsData || []
-                didLoadProjects = true
-                information = info
-                renderProjects(information, didLoadProjects)
-                linkFarmAreasToProjects()
-            })
-            .catch(function(error) {
-                console.warn("macondo: could not fetch profile/projects info; using default", error)
-                information = info
-                doTopbarstuff(information)
-            })
-
-        console.log(info)
-        return info
-    }
+    
 
     
 
