@@ -1,7 +1,7 @@
 import type { Project } from "./types"
 
 export const defaultProfilePfp = "https://cachet.dunkirk.sh/users/U091HC53CE8/r"
-export let placeholderProjects: Project[] = [
+export const placeholderProjects: Project[] = [
     {
         id: "placeholder-1",
         name: "IM LOADING IT PLS WAIT", // TODO: loading bar
@@ -16,3 +16,5 @@ export let placeholderProjects: Project[] = [
         fruit: "Papaya",
     },
 ]
+
+export const customProjectsId = "macondo-boringizer-projects"
