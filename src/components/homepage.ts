@@ -1,13 +1,24 @@
 import { doTopbarstuff } from "./topbar"
-import type { Project, Information, GameWorldState } from "./types"
+import type { Information, GameWorldState } from "./types"
 import { defaultProfilePfp } from "./consts.ts" // TODO: temp
 import { renderProjects, prepareDashboard, resetProjectsRenderCache } from "./projects"
 import { getInfo } from "./info"
 import { setProjectPopupHooks } from "./popups"
-function homepagething() {
+import { installDashboardProjectSync, type DashboardProjectSyncState } from "./dashboard-projects"
+
+let dashboardSync: (() => void) | null = null
+
+export function syncHomepageDashboard() {
+    setupHomepageDashboard()
+    if (dashboardSync) {
+        dashboardSync()
+    }
+}
+
+function setupHomepageDashboard() {
     window.macondo = window.macondo || {}
     if (location.pathname !== "/dashboard") { return }
-    if (window.macondo.homepagethingObserver) { return }
+    if (dashboardSync) { return }
     console.log("macondo+: homepagething running")
     // if (!window.macondo.datapage) {
     //     console.error("macondo: datapage not found! ID:1s9f8g")
@@ -33,11 +44,13 @@ function homepagething() {
     let didLoadProjects = false
     let linkedFarmAreasKey = ""
     let isLinkingFarmAreas = false
-    let activeProjectPopupId: string | null = null
-    let activeProjectPopupSnapshot: string | null = null
-    let pendingDeleteProjectId: string | null = null
-    let isWaitingForNewProjectClose = false
-    let didSeeNewProjectPopup = false
+    let projectSyncState: DashboardProjectSyncState = {
+        activeProjectPopupId: null,
+        activeProjectPopupSnapshot: null,
+        pendingDeleteProjectId: null,
+        isWaitingForNewProjectClose: false,
+        didSeeNewProjectPopup: false
+    }
     // TODO: show a small loading spinner while farm links are being resolved.
     // It can be considered done when isLinkingFarmAreas is false and
     // linkedFarmAreasKey matches the current farm tile/project key.
@@ -54,12 +67,12 @@ function homepagething() {
         },
         rightclickandextractfarmtile: rightclickandextractfarmtile,
         setNewProjectCloseWait: function(isWaiting, didSeePopup) {
-            isWaitingForNewProjectClose = isWaiting
-            didSeeNewProjectPopup = didSeePopup
+            projectSyncState.isWaitingForNewProjectClose = isWaiting
+            projectSyncState.didSeeNewProjectPopup = didSeePopup
         },
         setActiveProjectPopup: function(projectId, snapshot) {
-            activeProjectPopupId = projectId
-            activeProjectPopupSnapshot = snapshot
+            projectSyncState.activeProjectPopupId = projectId
+            projectSyncState.activeProjectPopupSnapshot = snapshot
         }
     })
 
@@ -220,126 +233,6 @@ function homepagething() {
     
 
 
-    function removeProjectFromDashboard(projectId: string | number | null | undefined) { // todo: test, i cant rn bc theres nothing to make a new project
-        let normalizedProjectId = String(projectId)
-        let oldProjects = information.projects || []
-        let newProjects = oldProjects.filter(function(project) {
-            return String(project.id) !== normalizedProjectId
-        })
-
-        if (newProjects.length === oldProjects.length) { return }
-
-        information.projects = newProjects
-        resetProjectsRenderCache()
-        linkedFarmAreasKey = ""
-        renderProjects(information, didLoadProjects)
-        linkFarmAreasToProjects()
-    }
-
-    function updateProjectInDashboard(projectData: Project) {
-        if (!projectData || projectData.id == null) { return }
-
-        let normalizedProjectId = String(projectData.id)
-        let oldProjects = information.projects || []
-        let didFindProject = false
-
-        information.projects = oldProjects.map(function(project) {
-            if (String(project.id) !== normalizedProjectId) { return project }
-            didFindProject = true
-            return Object.assign({}, project, projectData)
-        })
-
-        if (!didFindProject) { return }
-
-        resetProjectsRenderCache()
-        renderProjects(information, didLoadProjects)
-    }
-
-    function syncActiveProjectFromPopupDom() {
-        if (!activeProjectPopupId) { return }
-
-        let popup = document.querySelector(".modal-frame")
-        if (!popup) { return }
-
-        let updatedProject: Project = {
-            id: activeProjectPopupId
-        }
-        let didFindChange = false
-
-        let title = popup.querySelector('[data-tour="project-title"] h1')
-        if (title && title.textContent.trim()) {
-            updatedProject.name = title.textContent.trim()
-            didFindChange = true
-        }
-
-        let description = popup.querySelector('[data-tour="project-description"] .prose-desc')
-        if (description) {
-            updatedProject.description = description.textContent.trim()
-            didFindChange = true
-        }
-
-        if (!didFindChange) { return }
-
-        let snapshot = JSON.stringify(updatedProject)
-        if (!activeProjectPopupSnapshot) {
-            activeProjectPopupSnapshot = snapshot
-            return
-        }
-
-        if (snapshot === activeProjectPopupSnapshot) { return }
-
-        activeProjectPopupSnapshot = snapshot
-        
-        if (didFindChange) {
-            updateProjectInDashboard(updatedProject)
-        }
-    }
-
-    function isDeleteConfirmDialog(element: Element | null) {
-        let dialog = element && element.closest ? element.closest('[role="dialog"]') : null
-        if (!dialog) { return false }
-
-        let heading = dialog.querySelector("h2")
-        return !!heading && heading.textContent?.trim() === "Delete Project"
-    }
-
-    function watchProjectDeleteClick(event: MouseEvent) {
-        let target = event.target instanceof Element ? event.target : null
-        let button = target ? target.closest("button") : null
-        if (!button || button.textContent?.trim() !== "Delete Project") { return }
-        if (!activeProjectPopupId && !pendingDeleteProjectId) { return }
-
-        if (!isDeleteConfirmDialog(button)) {
-            pendingDeleteProjectId = activeProjectPopupId
-            return
-        }
-
-        if (!button.classList.contains("ds-btn-danger")) { return }
-
-        let deletedProjectId = pendingDeleteProjectId || activeProjectPopupId
-        setTimeout(function() {
-            removeProjectFromDashboard(deletedProjectId)
-            if (activeProjectPopupId === deletedProjectId) {
-                activeProjectPopupId = null
-                activeProjectPopupSnapshot = null
-            }
-            if (pendingDeleteProjectId === deletedProjectId) {
-                pendingDeleteProjectId = null
-            }
-        }, 0)
-    }
-    document.addEventListener("click", watchProjectDeleteClick, true)
- 
-
-    
-
-
-
-    
-
-    
-
-
     async function linkFarmAreasToProjects() {
         if (isLinkingFarmAreas) { return }
 
@@ -396,29 +289,6 @@ function homepagething() {
         }
     }
 
-    function isNewProjectPopupOpen() {
-        return Array.from(document.querySelectorAll('[role="dialog"]')).some(function(dialog) {
-            let heading = dialog.querySelector("h2")
-            return heading && heading.textContent.trim() === "New Project"
-        })
-    }
-
-    function syncNewProjectClose() {
-        if (!isWaitingForNewProjectClose) { return }
-
-        if (isNewProjectPopupOpen()) {
-            didSeeNewProjectPopup = true
-            return
-        }
-
-        if (!didSeeNewProjectPopup) { return }
-
-        isWaitingForNewProjectClose = false
-        didSeeNewProjectPopup = false
-        // TODO: show a loading spinner while the project list refreshes.
-        loadInfo()
-    }
-
     function loadInfo() {
         getInfo(didTryGetInfo, information, didLoadProjects, function() {
             didLoadProjects = true
@@ -428,6 +298,18 @@ function homepagething() {
         })
     }
 
+    let dashboardProjectSync = installDashboardProjectSync({
+        information: information,
+        state: projectSyncState,
+        getDidLoadProjects: function() {
+            return didLoadProjects
+        },
+        resetLinkedFarmAreasKey: function() {
+            linkedFarmAreasKey = ""
+        },
+        linkFarmAreasToProjects: linkFarmAreasToProjects,
+        loadInfo: loadInfo
+    })
 
     function syncDashboard() {
         if (location.pathname !== "/dashboard") { return }
@@ -436,8 +318,8 @@ function homepagething() {
             didTryGetInfo = true
             loadInfo()
         }
-        syncNewProjectClose()
-        syncActiveProjectFromPopupDom()
+        dashboardProjectSync.syncNewProjectClose()
+        dashboardProjectSync.syncActiveProjectFromPopupDom()
         renderProjects(information, didLoadProjects)
         doTopbarstuff(information)
 
@@ -454,21 +336,5 @@ function homepagething() {
 
     
 
-    syncDashboard()
-
-    let syncTimeout: ReturnType<typeof setTimeout> | undefined
-    window.macondo.homepagethingObserver = new MutationObserver(function() {
-        clearTimeout(syncTimeout)
-        syncTimeout = setTimeout(syncDashboard, 50)
-    })
-    window.macondo.homepagethingObserver.observe(document.body, {
-        childList: true,
-        subtree: true
-    })
+    dashboardSync = syncDashboard
 }
-
-window.addEventListener('pageChange', function() {
-    setTimeout(homepagething, 200)
-});
-
-setTimeout(homepagething, 200)
