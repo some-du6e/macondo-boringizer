@@ -18,6 +18,11 @@
             "matches": ["*://macondo.hackclub.com/*"],
             "js": ["components/entrypoint.ts"],
             "run_at": "document_idle"
+        },
+        {
+            "matches": ["*://macondo.hackclub.com/"],
+            "js": ["components/lander.ts"],
+            "run_at": "document_idle"
         }
     ]
 }

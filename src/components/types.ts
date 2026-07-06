@@ -2,6 +2,7 @@ declare global {
     interface Window {
         macondo: {
             homepagethingObserver?: MutationObserver
+            landerObserver?: MutationObserver
         }
     }
 }
