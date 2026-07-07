@@ -72,6 +72,7 @@ export function shoppopup(e?: MouseEvent) {
         if (!gameWorld || !oldGameWorldState) {
             return
         }
+        gameWorld.hidden = oldGameWorldState.hidden
         gameWorld.style.opacity = oldGameWorldState.opacity
         gameWorld.style.pointerEvents = oldGameWorldState.pointerEvents
     }
@@ -148,6 +149,7 @@ export function openProfilePopup(event?: MouseEvent) {
         if (!gameWorld || !oldGameWorldState) {
             return
         }
+        gameWorld.hidden = oldGameWorldState.hidden
         gameWorld.style.opacity = oldGameWorldState.opacity
         gameWorld.style.pointerEvents = oldGameWorldState.pointerEvents
     }
