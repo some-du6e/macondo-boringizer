@@ -15,7 +15,7 @@ function makepfp(information: Information) {
     if (existingPfp) {
         existingPfp.href = "/profile"
         existingPfp.dataset.macondoProfileLinkReady = "true"
-        existingPfp.addEventListener("click", openProfilePopup)
+        existingPfp.onclick = openProfilePopup
         existingPfp.style.order = "-1"
         let existingImage = existingPfp.querySelector("img")
         if (existingImage && existingImage.src !== pfpUrl) {
@@ -29,7 +29,7 @@ function makepfp(information: Information) {
     pfp.className = "w-10 h-10 rounded-full overflow-hidden border-2 border-ds-brown/40 shrink-0"
     pfp.href = "/profile"
     pfp.dataset.macondoProfileLinkReady = "true"
-    pfp.addEventListener("click", openProfilePopup)
+    pfp.onclick = openProfilePopup
     pfp.style.order = "-1"
 
     let img = document.createElement("img")
@@ -52,11 +52,7 @@ function hideThemeToggle(topbar: HTMLElement) {
     themeToggle.setAttribute("aria-hidden", "true")
 }
 
-function addShopButton(topbar: HTMLElement) {
-    if (document.getElementById("macondo-boringizer-shop-button")) {
-        return
-    }
-
+function getTopbarButtonInsertTarget(topbar: HTMLElement) {
     let docsLink = topbar.querySelector<HTMLAnchorElement>('a[href="/docs"]')
     let notificationsButton = topbar.querySelector('button[aria-label="Notifications"]')
     if (
@@ -64,23 +60,33 @@ function addShopButton(topbar: HTMLElement) {
         !notificationsButton ||
         !notificationsButton.parentElement ||
         !notificationsButton.parentElement.parentElement
-    ) {
+    ) { return null }
+
+    return {
+        className: docsLink.className,
+        container: notificationsButton.parentElement.parentElement,
+        before: notificationsButton.parentElement
+    }
+}
+
+function addShopButton(topbar: HTMLElement) {
+    if (document.getElementById("macondo-boringizer-shop-button")) {
         return
     }
+
+    let insertTarget = getTopbarButtonInsertTarget(topbar)
+    if (!insertTarget) { return }
 
     let shopButton = document.createElement("button")
     shopButton.id = "macondo-boringizer-shop-button"
     shopButton.type = "button"
-    shopButton.className = docsLink.className
+    shopButton.className = insertTarget.className
     shopButton.setAttribute("aria-label", "Shop")
     shopButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 md:w-5 md:h-5 lucide lucide-store-icon lucide-store" aria-hidden="true"><path d="M15 21v-5a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v5"/><path d="M17.774 10.31a1.12 1.12 0 0 0-1.549 0 2.5 2.5 0 0 1-3.451 0 1.12 1.12 0 0 0-1.548 0 2.5 2.5 0 0 1-3.452 0 1.12 1.12 0 0 0-1.549 0 2.5 2.5 0 0 1-3.77-3.248l2.889-4.184A2 2 0 0 1 7 2h10a2 2 0 0 1 1.653.873l2.895 4.192a2.5 2.5 0 0 1-3.774 3.244"/><path d="M4 10.95V19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8.05"/></svg><span class="hidden md:inline">Shop</span>`
     shopButton.addEventListener("click", function (e) {
         shoppopup(e)
     })
-    notificationsButton.parentElement.parentElement.insertBefore(
-        shopButton,
-        notificationsButton.parentElement,
-    )
+    insertTarget.container.insertBefore(shopButton, insertTarget.before)
 }
 
 function addExploreButton(topbar: HTMLElement) {
@@ -88,27 +94,16 @@ function addExploreButton(topbar: HTMLElement) {
         return
     }
 
-    let docsLink = topbar.querySelector<HTMLAnchorElement>('a[href="/docs"]')
-    let notificationsButton = topbar.querySelector('button[aria-label="Notifications"]')
-    if (
-        !docsLink ||
-        !notificationsButton ||
-        !notificationsButton.parentElement ||
-        !notificationsButton.parentElement.parentElement
-    ) {
-        return
-    }
+    let insertTarget = getTopbarButtonInsertTarget(topbar)
+    if (!insertTarget) { return }
 
     let exploreButton = document.createElement("a")
     exploreButton.id = "macondo-boringizer-explore-button"
-    exploreButton.className = docsLink.className
+    exploreButton.className = insertTarget.className
     exploreButton.setAttribute("aria-label", "Explore")
     exploreButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 md:w-5 md:h-5 lucide lucide-compass-icon lucide-compass" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-1.8 5.39a2 2 0 0 1-1.26 1.26l-5.42 1.83 1.8-5.39a2 2 0 0 1 1.26-1.26z"/></svg><span class="hidden md:inline">Explore</span>`
     exploreButton.href = "/explore"
-    notificationsButton.parentElement.parentElement.insertBefore(
-        exploreButton,
-        notificationsButton.parentElement,
-    )
+    insertTarget.container.insertBefore(exploreButton, insertTarget.before)
 }
 
 export function doTopbarstuff(information: Information) {
@@ -128,7 +123,6 @@ export function doTopbarstuff(information: Information) {
     topbar.classList.remove("pointer-events-none")
 
     topbar.classList.add("sticky")
-    // topbar.classList.add("sticky")
 
     hideThemeToggle(topbar)
     addShopButton(topbar)

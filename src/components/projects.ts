@@ -9,8 +9,10 @@ export function resetProjectsRenderCache() {
 }
 
 function newProjectCard() {
-        let card = document.createElement("div")
+        let card = document.createElement("button")
+        card.type = "button"
         card.className = "group flex flex-col bg-parchment border-[3px] border-ds-brown/20 hover:border-ds-brown/60 cursor-pointer transition-colors h-full"
+        card.setAttribute("aria-label", "New project")
         card.innerHTML = `
         <div class="flex flex-1 flex-col items-center justify-center p-3">
             <span class="font-bold text-ds-brown leading-tight text-6xl">+</span>
@@ -55,10 +57,22 @@ function convertfruittoshit(fruit: string) {
     return "papaya/icon_interior.webp"
 }
 
-function convertFruitStageToImage(fruit: string, stage: string | number) {
-    return `${fruit.toLowerCase()}/etapa_${stage}.webp`
+const fruitStageFolders: Record<string, string> = {
+    Mango: "mango",
+    Pineapple: "pineapple",
+    Papaya: "papaya",
+    Cocoa: "cocoa",
+    Guava: "guava",
+    Coconut: "coco",
+    Watermelon: "watermelon",
+    Avocado: "avocado",
+}
 
-    return "papaya/icon_interior.webp"
+function convertFruitStageToImage(fruit: string, stage: string | number) {
+    let folder = fruitStageFolders[fruit] || "papaya"
+    let stageNumber = Number(stage)
+    let safeStage = Number.isInteger(stageNumber) && stageNumber > 0 ? stageNumber : 1
+    return `${folder}/etapa_${safeStage}.webp`
 }
 
 function escapeHtml(value: unknown) {
@@ -74,12 +88,13 @@ function projectCard(project: Project) {
     project = project || {}
     let projectName = project.name || "Untitled project"
     let projectDescription = project.description || "No description yet."
-    let projectStatus = project.has_shipped ? "Shipped" : "In Progress"
+    let projectStatus =
+        project.has_shipped == null ? project.status || "In Progress" : project.has_shipped ? "Shipped" : "In Progress"
     let projectStatusColor = projectStatus == "In Progress" ? "bg-ds-warning text-ds-brown" : ""
     let projectType = project.type || "software"
     let projectLevel = project.level || "1"
     let projectVotes = project.votes || project.upvotes || 0
-    let projectImage = project.thumbnail_url || null
+    let projectImage = project.thumbnail_url || project.image || null
     let projectFruit = project.fruit || "Papaya"
     let fruitSlug = convertfruittoshit(String(projectFruit))
     let fruitStageImage = convertFruitStageToImage(String(projectFruit), project.stage || 1)
@@ -96,6 +111,7 @@ function projectCard(project: Project) {
     projectStreak = escapeHtml(projectStreak)
     projectFruit = escapeHtml(projectFruit)
     fruitSlug = escapeHtml(fruitSlug)
+    fruitStageImage = escapeHtml(fruitStageImage)
 
     let image = ``
     if (projectImage) {
@@ -107,6 +123,9 @@ function projectCard(project: Project) {
     let card = document.createElement("div")
     card.className =
         "group flex min-h-0 flex-col bg-parchment border-[3px] border-ds-brown/20 hover:border-ds-brown/60 cursor-pointer transition-colors"
+    card.setAttribute("role", "button")
+    card.tabIndex = 0
+    card.setAttribute("aria-label", "View project " + projectName)
     let cardContent = `
   <div
     class="relative aspect-[16/10] bg-ds-brown/10 overflow-hidden border-b-[3px] border-ds-brown/10">
@@ -207,6 +226,12 @@ function projectCard(project: Project) {
         console.log("macondo: project card clicked", project.id)
         projectpopup(project.id, e)
     })
+    card.addEventListener("keydown", function(e) {
+        if (e.key !== "Enter" && e.key !== " ") { return }
+        e.preventDefault()
+        console.log("macondo: project card clicked", project.id)
+        projectpopup(project.id, e as unknown as MouseEvent)
+    })
 
     return card
 }
@@ -247,7 +272,24 @@ export function renderProjects(information: Information, didLoadProjects: boolea
         information.projects.length || didLoadProjects ? information.projects : placeholderProjects
     let projectsKey = projectsToRender
         .map(function (project) {
-            return project.id || project.name || ""
+            return [
+                project.id,
+                project.name,
+                project.description,
+                project.status,
+                project.has_shipped,
+                project.type,
+                project.level,
+                project.votes,
+                project.upvotes,
+                project.image,
+                project.thumbnail_url,
+                project.fruit,
+                project.stage,
+                project.project_streak_days,
+            ].map(function(value) {
+                return String(value ?? "")
+            }).join("^_")
         })
         .join("|")
     let expectedProjectCardCount = projectsToRender.length + 1

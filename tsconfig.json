@@ -19,6 +19,6 @@
     "useDefineForClassFields": true,
     "skipLibCheck": true
   },
-  "include": ["./", "extension-env.d.ts"],
+  "include": ["./"],
   "exclude": ["node_modules", "dist"]
 }

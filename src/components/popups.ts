@@ -10,6 +10,7 @@ type ProjectPopupHooks = {
 }
 
 let projectPopupHooks: ProjectPopupHooks | null = null
+let linkingFarmAreasPromise: Promise<void> | null = null
 
 export function setProjectPopupHooks(hooks: ProjectPopupHooks) {
     projectPopupHooks = hooks
@@ -30,7 +31,7 @@ function isShopModalOpen() {
 
 function findShopOpener() {
     return Array.from(document.querySelectorAll("button")).find(function (button) {
-        return button.textContent.trim() === "Open the shop"
+        return button.textContent?.trim() === "Open the shop"
     })
 }
 export function shoppopup(e?: MouseEvent) {
@@ -102,7 +103,7 @@ function isProfileModalOpen() {
 
 function findProfileOpener() {
     return Array.from(document.querySelectorAll("button")).find(function (button) {
-        return button.textContent.trim() === "Open your profile"
+        return button.textContent?.trim() === "Open your profile"
     })
 }
 
@@ -194,10 +195,20 @@ function findProjectFarmTile(projectId: string | number | null | undefined) {
         if (!hooks) { return null }
 
         let target = findProjectFarmTile(projectId)
-        if (target || hooks.isLinkingFarmAreas()) { return target }
+        if (target) { return target }
+
+        if (hooks.isLinkingFarmAreas() && linkingFarmAreasPromise) {
+            await linkingFarmAreasPromise
+            return findProjectFarmTile(projectId)
+        }
 
         hooks.resetLinkedFarmAreasKey()
-        await hooks.linkFarmAreasToProjects()
+        linkingFarmAreasPromise = hooks.linkFarmAreasToProjects()
+        try {
+            await linkingFarmAreasPromise
+        } finally {
+            linkingFarmAreasPromise = null
+        }
         return findProjectFarmTile(projectId)
     }
 
@@ -208,7 +219,11 @@ function findProjectFarmTile(projectId: string | number | null | undefined) {
         if (!hooks) { return }
 
         let target = await getProjectFarmTile(projectId)
-        hooks.rightclickandextractfarmtile(target, true, e.clientX, e.clientY)
+        try {
+            await hooks.rightclickandextractfarmtile(target, true, e.clientX, e.clientY)
+        } catch (error) {
+            console.warn("macondo: project context menu failed", error)
+        }
     }
 
     export function newprojectpopup(e: MouseEvent) {

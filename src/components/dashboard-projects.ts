@@ -32,7 +32,9 @@ export function installDashboardProjectSync(options: DashboardProjectSyncOptions
         resetProjectsRenderCache()
         options.resetLinkedFarmAreasKey()
         renderProjects(options.information, options.getDidLoadProjects())
-        options.linkFarmAreasToProjects()
+        options.linkFarmAreasToProjects().catch(function(error) {
+            console.warn("macondo: farm area linking failed after project removal", error)
+        })
     }
 
     function updateProjectInDashboard(projectData: Project) {
@@ -66,14 +68,16 @@ export function installDashboardProjectSync(options: DashboardProjectSyncOptions
         let didFindChange = false
 
         let title = popup.querySelector('[data-tour="project-title"] h1')
-        if (title && title.textContent.trim()) {
-            updatedProject.name = title.textContent.trim()
+        let titleText = title?.textContent?.trim()
+        if (titleText) {
+            updatedProject.name = titleText
             didFindChange = true
         }
 
         let description = popup.querySelector('[data-tour="project-description"] .prose-desc')
-        if (description) {
-            updatedProject.description = description.textContent.trim()
+        let descriptionText = description?.textContent?.trim()
+        if (descriptionText) {
+            updatedProject.description = descriptionText
             didFindChange = true
         }
 
@@ -128,7 +132,7 @@ export function installDashboardProjectSync(options: DashboardProjectSyncOptions
     function isNewProjectPopupOpen() {
         return Array.from(document.querySelectorAll('[role="dialog"]')).some(function(dialog) {
             let heading = dialog.querySelector("h2")
-            return heading && heading.textContent.trim() === "New Project"
+            return heading?.textContent?.trim() === "New Project"
         })
     }
 

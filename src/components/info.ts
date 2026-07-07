@@ -1,8 +1,7 @@
 import { defaultProfilePfp } from "./consts.ts" 
 import type { Information, Project } from "./types"
 import { doTopbarstuff } from "./topbar.ts"
-export function getInfo(didTryGetInfo: boolean, information: Information, didLoadProjects: boolean, onProjectsLoaded?: () => void): Information {
-        didTryGetInfo = true
+export function getInfo(information: Information, onProjectsLoaded?: () => void): Information {
         let info: Information = {
             "user": {
                 "name": "not found",
@@ -42,7 +41,12 @@ export function getInfo(didTryGetInfo: boolean, information: Information, didLoa
             return null
         }
 
-        fetch("/api/auth/me", { credentials: "include" })
+        let controller = new AbortController()
+        let timeoutId = setTimeout(function() {
+            controller.abort()
+        }, 8000)
+
+        fetch("/api/auth/me", { credentials: "include", signal: controller.signal })
             .then(function(response) {
                 if (!response.ok) {
                     throw new Error("auth/me returned " + response.status)
@@ -59,7 +63,7 @@ export function getInfo(didTryGetInfo: boolean, information: Information, didLoa
                 if (!info.user.id || info.user.id === "not found") {
                     throw new Error("auth/me did not return user id")
                 }
-                return fetch(`api/projects`, { credentials: "include" })
+                return fetch("/api/projects", { credentials: "include", signal: controller.signal })
             })
             .then(function(response) {
                 if (!response.ok) {
@@ -68,13 +72,14 @@ export function getInfo(didTryGetInfo: boolean, information: Information, didLoa
                 return response.json()
             })
             .then(function(projectsData: Project[]) {
+                clearTimeout(timeoutId)
                 info.projects = projectsData || []
-                didLoadProjects = true
                 information.user = info.user
                 information.projects = info.projects
                 if (onProjectsLoaded) { onProjectsLoaded() }
             })
             .catch(function(error) {
+                clearTimeout(timeoutId)
                 console.warn("macondo: could not fetch profile/projects info; using default", error)
                 information.user = info.user
                 information.projects = info.projects

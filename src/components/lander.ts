@@ -12,16 +12,17 @@ function buildchildren() {
 }
 
 function eliminateChildren(element: Element) {
-    while (element.firstChild) {
-        element.removeChild(element.firstChild)
-    }
+    element.replaceChildren()
 }
 
 function makeTheLanderFuckingWork() {
     let thebuttonsdiv = document.getElementsByClassName(
         "absolute inset-0 z-[16] flex flex-col items-center justify-end pb-16 px-6",
     )[0]
-    if (!thebuttonsdiv) { return }
+    if (!thebuttonsdiv) {
+        console.warn("macondo: lander dashboard button container not found")
+        return
+    }
 
     if (document.getElementById("macondo-boringizer-lander-dashboard-button")) {
         return

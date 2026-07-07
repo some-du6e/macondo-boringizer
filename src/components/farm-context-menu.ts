@@ -188,9 +188,9 @@ export function createFarmAreaLinker(information: Information) {
                 area.setAttribute("data-macondo-project-name", projectName)
                 area.removeAttribute("data-macondo-project-id")
 
-                for (let project in projectList) {
-                    if (projectList[project].name === projectName) {
-                        area.setAttribute("data-macondo-project-id", String(projectList[project].id))
+                for (let project of projectList) {
+                    if (project.name === projectName) {
+                        area.setAttribute("data-macondo-project-id", String(project.id))
                         break
                     }
                 }

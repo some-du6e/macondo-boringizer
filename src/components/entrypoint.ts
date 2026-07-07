@@ -57,11 +57,13 @@ function setupHomepageDashboard() {
     })
 
     function loadInfo() {
-        getInfo(didTryGetInfo, information, didLoadProjects, function() {
+        getInfo(information, function() {
             didLoadProjects = true
             resetProjectsRenderCache()
             renderProjects(information, didLoadProjects)
-            farmAreaLinker.linkFarmAreasToProjects()
+            farmAreaLinker.linkFarmAreasToProjects().catch(function(error) {
+                console.warn("macondo: farm area linking failed after loading projects", error)
+            })
         })
     }
 
