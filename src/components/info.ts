@@ -76,6 +76,8 @@ export function getInfo(information: Information, onProjectsLoaded?: () => void)
                 info.projects = projectsData || []
                 information.user = info.user
                 information.projects = info.projects
+
+                localStorage.setItem("boringizer-probably-logged-in", "true")
                 if (onProjectsLoaded) { onProjectsLoaded() }
             })
             .catch(function(error) {

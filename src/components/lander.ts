@@ -16,6 +16,10 @@ function eliminateChildren(element: Element) {
 }
 
 function makeTheLanderFuckingWork() {
+    let probablyloggedin = localStorage.getItem("boringizer-probably-logged-in")
+    if (!probablyloggedin) {
+        return
+    }
     let thebuttonsdiv = document.getElementsByClassName(
         "absolute inset-0 z-[16] flex flex-col items-center justify-end pb-16 px-6",
     )[0]
