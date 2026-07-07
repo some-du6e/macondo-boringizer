@@ -229,8 +229,17 @@ function projectCard(project: Project) {
     card.addEventListener("keydown", function(e) {
         if (e.key !== "Enter" && e.key !== " ") { return }
         e.preventDefault()
+        let rect = card.getBoundingClientRect()
+        let keyboardClick = new MouseEvent("click", {
+            bubbles: true,
+            cancelable: true,
+            button: 0,
+            buttons: 1,
+            clientX: rect.left + rect.width / 2,
+            clientY: rect.top + rect.height / 2,
+        })
         console.log("macondo: project card clicked", project.id)
-        projectpopup(project.id, e as unknown as MouseEvent)
+        projectpopup(project.id, keyboardClick)
     })
 
     return card
