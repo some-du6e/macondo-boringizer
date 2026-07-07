@@ -79,7 +79,10 @@ function setupHomepageDashboard() {
     })
 
     function syncDashboardState() {
-        if (location.pathname !== "/dashboard") { return }
+        if (location.pathname !== "/dashboard") {
+            didTryGetInfo = false
+            return
+        }
         prepareDashboard()
         if (!didTryGetInfo) {
             didTryGetInfo = true
@@ -95,7 +98,6 @@ function setupHomepageDashboard() {
 }
 
 function syncDashboard() {
-    if (location.pathname !== "/dashboard") { return }
     syncHomepageDashboard()
 }
 
