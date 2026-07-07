@@ -1,0 +1,26 @@
+{
+    "private": true,
+    "name": "boring-macondo",
+    "description": "JavaScript-based extension with a sidebar panel. Adds a sidebar with a simple page.",
+    "version": "1.0.0",
+    "license": "MIT",
+    "type": "module",
+    "author": {
+        "name": "Your Name",
+        "email": "your@email.com",
+        "url": "https://yourwebsite.com"
+    },
+    "scripts": {
+        "dev": "extension dev --browser chrome",
+        "start": "extension start",
+        "build": "extension build",
+        "preview": "extension preview",
+        "build:chrome": "extension build --browser chrome",
+        "build:firefox": "extension build --browser firefox",
+        "build:edge": "extension build --browser edge"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "extension": "^4.0.3"
+    }
+}
