@@ -21,16 +21,32 @@ function settingsSection() { // copied off the Notification Preferences section 
 
 
     let grayscaleRow = document.createElement("tr")
-    grayscaleRow.className = "bg-[#ffffff]"
+    grayscaleRow.className = "bg-white border-10 border-black"
+    grayscaleRow.style.border = "2px solid black"
 
+    let grayscaleRowTitle = document.createElement("td")
+    grayscaleRowTitle.className = "py-3 pr-4 pl-2 text-black"
+    grayscaleRowTitle.textContent = "Ultra boring"
 
+    let grayScaleRowCheckbox = document.createElement("td")
+    grayScaleRowCheckbox.className = "py-3 px-2 text-center"
+
+    let grayScaleRowCheckboxInput = document.createElement("input")
+    grayScaleRowCheckboxInput.type = "checkbox"
+    grayScaleRowCheckboxInput.className = "w-4 h-4 accent-black"
+    
+    grayScaleRowCheckbox.appendChild(grayScaleRowCheckboxInput)
+    grayscaleRow.appendChild(grayscaleRowTitle)
+    grayscaleRow.appendChild(grayScaleRowCheckbox)
 
     section.appendChild(sectionContent)
     sectionContent.appendChild(sectionTitle)
     sectionContent.appendChild(sectionDescription)
     sectionContent.appendChild(settingsTable)
     settingsTable.appendChild(settingsTableContent)
+    settingsTableContent.appendChild(grayscaleRow)
 
+    console.log(section)
     return section
 }
 
