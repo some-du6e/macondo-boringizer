@@ -6,6 +6,7 @@ import { getInfo } from "./info"
 import { setProjectPopupHooks } from "./popups"
 import { installDashboardProjectSync, type DashboardProjectSyncState } from "./dashboard-projects"
 import { createFarmAreaLinker } from "./farm-context-menu"
+import { preload } from "./preload.ts"
 
 let dashboardSync: (() => void) | null = null
 
@@ -86,6 +87,7 @@ function setupHomepageDashboard() {
         prepareDashboard()
         if (!didTryGetInfo) {
             didTryGetInfo = true
+            preload()
             loadInfo()
         }
         dashboardProjectSync.syncNewProjectClose()
