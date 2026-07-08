@@ -11,7 +11,8 @@
         "url": "https://yourwebsite.com"
     },
     "scripts": {
-        "dev": "extension dev --browser chrome",
+        "dev": "extension dev --browser chrome --starting-url https://macondo.hackclub.com/",
+        "dev:chromium": "extension dev --browser chromium --starting-url https://macondo.hackclub.com/",
         "start": "extension start",
         "build": "extension build",
         "preview": "extension preview",

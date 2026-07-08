@@ -40,3 +40,8 @@ export type GameWorldState = {
     opacity: string
     pointerEvents: string
 }
+
+export type Settings = {
+    greyscale: boolean
+    lockshopbehindstreak: boolean // todo: cool but i think its too hard
+}
