@@ -34,6 +34,20 @@ function settingsSection() { // copied off the Notification Preferences section 
     return section
 }
 
+export function applyToSettingsDiv(settingsDiv: Element) {
+    console.log("is this even being called?")
+    if (settingsDiv.className !== "relative z-10 max-w-4xl mx-auto px-4 pb-12 pt-6 flex flex-col gap-6") { return }
+
+    let streakSection = settingsDiv.querySelector("#streak")
+    if (!streakSection) { return }
+    let settingsSectionElement = settingsSection()
+
+    // hack bc js sucks ass and they didnt make a intertAfter tool
+    let afterStreakSection = streakSection.nextSibling
+    if (afterStreakSection == null) {return}
+    console.log(settingsDiv)
+    settingsDiv.insertBefore(settingsSectionElement, afterStreakSection)
+}
 
 
 // template for a setting
