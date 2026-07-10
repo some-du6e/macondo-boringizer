@@ -39,12 +39,41 @@ function settingsSection() { // copied off the Notification Preferences section 
     grayscaleRow.appendChild(grayscaleRowTitle)
     grayscaleRow.appendChild(grayScaleRowCheckbox)
 
+
+
+    let preloadShopRow = document.createElement("tr")
+    preloadShopRow.className = "bg-white border-10 border-black"
+    preloadShopRow.style.border = "2px solid black"
+
+    let preloadShopRowTitle = document.createElement("td")
+    preloadShopRowTitle.className = "py-3 pr-4 pl-2 text-black"
+    preloadShopRowTitle.textContent = "Preload shop items"
+
+    let preloadShopRowCheckbox = document.createElement("td")
+    preloadShopRowCheckbox.className = "py-3 px-2 text-center"
+
+    let preloadShopRowCheckboxInput = document.createElement("input")
+    preloadShopRowCheckboxInput.type = "checkbox"
+    preloadShopRowCheckboxInput.className = "w-4 h-4 accent-black"
+
+    preloadShopRowCheckbox.appendChild(preloadShopRowCheckboxInput)
+    preloadShopRow.appendChild(preloadShopRowTitle)
+    preloadShopRow.appendChild(preloadShopRowCheckbox)
+
+   
+
+
+
+
+
     section.appendChild(sectionContent)
     sectionContent.appendChild(sectionTitle)
     sectionContent.appendChild(sectionDescription)
     sectionContent.appendChild(settingsTable)
     settingsTable.appendChild(settingsTableContent)
+
     settingsTableContent.appendChild(grayscaleRow)
+    settingsTableContent.appendChild(preloadShopRow)
 
     console.log(section)
     return section
