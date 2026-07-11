@@ -1,5 +1,6 @@
 function settingsSection() { // copied off the Notification Preferences section but changed a bit
     let section = document.createElement("div")
+    section.id = "boringizer-settings"
 
     let sectionContent = document.createElement("div")
     sectionContent.className = "pb-4 border-b-2 border-ds-brown"
@@ -34,6 +35,7 @@ function settingsSection() { // copied off the Notification Preferences section 
     let grayScaleRowCheckboxInput = document.createElement("input")
     grayScaleRowCheckboxInput.type = "checkbox"
     grayScaleRowCheckboxInput.className = "w-4 h-4 accent-black"
+    grayScaleRowCheckboxInput.dataset.boringizerSetting = "grayscale"
     
     grayScaleRowCheckbox.appendChild(grayScaleRowCheckboxInput)
     grayscaleRow.appendChild(grayscaleRowTitle)
@@ -55,6 +57,7 @@ function settingsSection() { // copied off the Notification Preferences section 
     let preloadShopRowCheckboxInput = document.createElement("input")
     preloadShopRowCheckboxInput.type = "checkbox"
     preloadShopRowCheckboxInput.className = "w-4 h-4 accent-black"
+    preloadShopRowCheckboxInput.dataset.boringizerSetting = "preload-shop"
 
     preloadShopRowCheckbox.appendChild(preloadShopRowCheckboxInput)
     preloadShopRow.appendChild(preloadShopRowTitle)
@@ -80,8 +83,10 @@ function settingsSection() { // copied off the Notification Preferences section 
 }
 
 export function applyToSettingsDiv(settingsDiv: Element) {
-    console.log("is this even being called?")
     if (settingsDiv.className !== "relative z-10 max-w-4xl mx-auto px-4 pb-12 pt-6 flex flex-col gap-6") { return }
+    let existingSettings = settingsDiv.querySelector("#boringizer-settings")
+    if (existingSettings?.querySelector('[data-boringizer-setting="grayscale"]')) { return }
+    existingSettings?.remove()
 
     let streakSection = settingsDiv.querySelector("#streak")
     if (!streakSection) { return }
@@ -90,8 +95,9 @@ export function applyToSettingsDiv(settingsDiv: Element) {
     // hack bc js sucks ass and they didnt make a intertAfter tool
     let afterStreakSection = streakSection.nextSibling
     if (afterStreakSection == null) {return}
-    console.log(settingsDiv)
+    
     settingsDiv.insertBefore(settingsSectionElement, afterStreakSection)
+    console.log("Applied Boringizer settings")
 }
 
 
