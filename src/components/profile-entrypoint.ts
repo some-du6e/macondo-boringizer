@@ -6,13 +6,13 @@ function doProfileStuff() {
     applyToSettingsDiv(settingsDiv)
 }
 
-doProfileStuff()
-
 let profileSyncTimeout: ReturnType<typeof setTimeout> | undefined
 new MutationObserver(function() {
     clearTimeout(profileSyncTimeout)
     profileSyncTimeout = setTimeout(doProfileStuff, 50)
-}).observe(document.body, {
+}).observe(document.body, { 
     childList: true,
     subtree: true
 })
+
+setTimeout(doProfileStuff, 250)

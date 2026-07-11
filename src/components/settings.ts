@@ -1,3 +1,51 @@
+function grayscaleSetting() {
+
+    let grayscaleRow = document.createElement("tr")
+    grayscaleRow.className = "bg-white border-t border-black z-[-1]"
+
+    let grayscaleRowTitle = document.createElement("td")
+    grayscaleRowTitle.className = "py-3 pr-4 pl-2 text-black"
+    grayscaleRowTitle.textContent = "Ultra boring"
+
+    let grayScaleRowCheckbox = document.createElement("td")
+    grayScaleRowCheckbox.className = "py-3 px-2 text-center"
+
+    let grayScaleRowCheckboxInput = document.createElement("input")
+    grayScaleRowCheckboxInput.type = "checkbox"
+    grayScaleRowCheckboxInput.className = "w-4 h-4 accent-ds-brown"
+    grayScaleRowCheckboxInput.dataset.boringizerSetting = "grayscale"
+    
+    grayScaleRowCheckbox.appendChild(grayScaleRowCheckboxInput)
+    grayscaleRow.appendChild(grayscaleRowTitle)
+    grayscaleRow.appendChild(grayScaleRowCheckbox)
+
+    return grayscaleRow
+}
+
+function preloadShopSetting() {
+    let preloadShopRow = document.createElement("tr")
+    preloadShopRow.className = "border-t border-ds-brown/15"
+
+    let preloadShopRowTitle = document.createElement("td")
+    preloadShopRowTitle.className = "py-3 pr-4 text-ds-brown"
+    preloadShopRowTitle.textContent = "Preload shop items"
+
+    let preloadShopRowCheckbox = document.createElement("td")
+    preloadShopRowCheckbox.className = "py-3 px-2 text-center"
+
+    let preloadShopRowCheckboxInput = document.createElement("input")
+    preloadShopRowCheckboxInput.type = "checkbox"
+    preloadShopRowCheckboxInput.className = "w-4 h-4 accent-black"
+    preloadShopRowCheckboxInput.dataset.boringizerSetting = "preload-shop"
+
+    preloadShopRowCheckbox.appendChild(preloadShopRowCheckboxInput)
+    preloadShopRow.appendChild(preloadShopRowTitle)
+    preloadShopRow.appendChild(preloadShopRowCheckbox)
+    
+    return preloadShopRow
+}
+
+
 function settingsSection() { // copied off the Notification Preferences section but changed a bit
     let section = document.createElement("div")
     section.id = "boringizer-settings"
@@ -21,51 +69,6 @@ function settingsSection() { // copied off the Notification Preferences section 
 
 
 
-    let grayscaleRow = document.createElement("tr")
-    grayscaleRow.className = "bg-white border-10 border-black"
-    grayscaleRow.style.border = "2px solid black"
-
-    let grayscaleRowTitle = document.createElement("td")
-    grayscaleRowTitle.className = "py-3 pr-4 pl-2 text-black"
-    grayscaleRowTitle.textContent = "Ultra boring"
-
-    let grayScaleRowCheckbox = document.createElement("td")
-    grayScaleRowCheckbox.className = "py-3 px-2 text-center"
-
-    let grayScaleRowCheckboxInput = document.createElement("input")
-    grayScaleRowCheckboxInput.type = "checkbox"
-    grayScaleRowCheckboxInput.className = "w-4 h-4 accent-black"
-    grayScaleRowCheckboxInput.dataset.boringizerSetting = "grayscale"
-    
-    grayScaleRowCheckbox.appendChild(grayScaleRowCheckboxInput)
-    grayscaleRow.appendChild(grayscaleRowTitle)
-    grayscaleRow.appendChild(grayScaleRowCheckbox)
-
-
-
-    let preloadShopRow = document.createElement("tr")
-    preloadShopRow.className = "bg-white border-10 border-black"
-    preloadShopRow.style.border = "2px solid black"
-
-    let preloadShopRowTitle = document.createElement("td")
-    preloadShopRowTitle.className = "py-3 pr-4 pl-2 text-black"
-    preloadShopRowTitle.textContent = "Preload shop items"
-
-    let preloadShopRowCheckbox = document.createElement("td")
-    preloadShopRowCheckbox.className = "py-3 px-2 text-center"
-
-    let preloadShopRowCheckboxInput = document.createElement("input")
-    preloadShopRowCheckboxInput.type = "checkbox"
-    preloadShopRowCheckboxInput.className = "w-4 h-4 accent-black"
-    preloadShopRowCheckboxInput.dataset.boringizerSetting = "preload-shop"
-
-    preloadShopRowCheckbox.appendChild(preloadShopRowCheckboxInput)
-    preloadShopRow.appendChild(preloadShopRowTitle)
-    preloadShopRow.appendChild(preloadShopRowCheckbox)
-
-   
-
-
 
 
 
@@ -75,8 +78,10 @@ function settingsSection() { // copied off the Notification Preferences section 
     sectionContent.appendChild(settingsTable)
     settingsTable.appendChild(settingsTableContent)
 
-    settingsTableContent.appendChild(grayscaleRow)
-    settingsTableContent.appendChild(preloadShopRow)
+    const settings = [grayscaleSetting(), preloadShopSetting()]
+    for (const setting of settings) {
+        settingsTableContent.appendChild(setting)
+    }
 
     console.log(section)
     return section
@@ -92,11 +97,7 @@ export function applyToSettingsDiv(settingsDiv: Element) {
     if (!streakSection) { return }
     let settingsSectionElement = settingsSection()
 
-    // hack bc js sucks ass and they didnt make a intertAfter tool
-    let afterStreakSection = streakSection.nextSibling
-    if (afterStreakSection == null) {return}
-    
-    settingsDiv.insertBefore(settingsSectionElement, afterStreakSection)
+    settingsDiv.appendChild(settingsSectionElement)
     console.log("Applied Boringizer settings")
 }
 
