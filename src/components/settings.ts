@@ -19,6 +19,15 @@ function grayscaleSetting() {
     grayscaleRow.appendChild(grayscaleRowTitle)
     grayscaleRow.appendChild(grayScaleRowCheckbox)
 
+    const grayscaleStatus = localStorage.getItem("boringizer-grayscale") == "true" ? true : false 
+    grayScaleRowCheckboxInput.checked = grayscaleStatus
+    
+    grayScaleRowCheckboxInput.addEventListener("change", function() {
+        const newStatus = grayScaleRowCheckboxInput.checked
+        localStorage.setItem("boringizer-grayscale", newStatus.toString())
+        console.log("Boringizer: Grayscale setting changed to", newStatus)
+    })
+
     return grayscaleRow
 }
 
@@ -42,6 +51,15 @@ function preloadShopSetting() {
     preloadShopRow.appendChild(preloadShopRowTitle)
     preloadShopRow.appendChild(preloadShopRowCheckbox)
     
+    const preloadShopStatus = localStorage.getItem("boringizer-preloading-shop") == "false" ? false : true 
+    preloadShopRowCheckboxInput.checked = preloadShopStatus
+    
+    preloadShopRowCheckboxInput.addEventListener("change", function() {
+        const newStatus = preloadShopRowCheckboxInput.checked
+        localStorage.setItem("boringizer-preloading-shop", newStatus.toString())
+        console.log("Boringizer: Preload shop setting changed to", newStatus)
+    })
+
     return preloadShopRow
 }
 
