@@ -70,6 +70,119 @@ function preloadShopSetting() {
 }
 
 
+function openDelayPopup() { // inspired by onesec
+    let popupBg = document.createElement("div")
+    popupBg.className = "fixed inset-0 z-[200] bg-black/70 backdrop-blur-sm"
+
+    popupBg.addEventListener("click", function() {
+        popupBg?.remove()
+        popup?.remove()
+    })
+
+
+    let popup = document.createElement("div")
+    popup.className = "fixed inset-0 z-[201] flex items-center justify-center pointer-events-none"
+    popup.innerHTML = `
+    <div
+    class="relative pl-5 pt-4 pr-6 pb-6 flex flex-col modal-frame relative w-full max-w-6xl mx-4 pointer-events-auto max-h-[90vh]">
+    <div class="absolute top-2 bottom-2 left-3 right-3 bg-parchment"></div>
+    <div class="relative z-[1] flex-1 min-h-0 w-full p-4 overflow-y-auto">
+        <div class="bg-parchment">
+            <div
+                class="max-w-4xl mx-auto px-4 pb-12 pt-6 relative overflow-x-hidden">
+                system alert: we will add amazon grants and food grants
+            </div>
+        </div>
+    </div>
+    <img
+        src="/images/borders/top_left.webp"
+        class="absolute top-0 left-0 w-24 h-24 pointer-events-none z-[2]"
+        alt=""
+        draggable="false" />
+    <img
+        src="/images/borders/top_right.webp"
+        class="absolute top-0 right-0 w-24 h-24 pointer-events-none z-[2]"
+        alt=""
+        draggable="false" />
+    <img
+        src="/images/borders/bottom_left.webp"
+        class="absolute bottom-0 left-0 w-24 h-24 pointer-events-none z-[2]"
+        alt=""
+        draggable="false" />
+    <img
+        src="/images/borders/bottom_right_2.webp"
+        class="absolute bottom-0 right-0 w-24 h-24 pointer-events-none z-[2]"
+        alt=""
+        draggable="false" />
+    <div
+        class="absolute top-24 left-[8px] bottom-24 w-24 pointer-events-none z-[1]"
+        style="
+            background-image: url(&quot;/images/borders/left.webp&quot;);
+            background-size: 96px 96px;
+            background-repeat: no-repeat round;
+        "></div>
+    <div
+        class="absolute top-24 right-[8px] bottom-24 w-24 pointer-events-none z-[1]"
+        style="
+            background-image: url(&quot;/images/borders/right.webp&quot;);
+            background-size: 96px 96px;
+            background-repeat: no-repeat round;
+        "></div>
+    <div
+        class="absolute top-0 left-24 right-24 h-24 pointer-events-none z-[1]"
+        style="
+            background-image: url(&quot;/images/borders/top.webp&quot;);
+            background-size: 100% 100%;
+        "></div>
+    <div
+        class="absolute bottom-0 left-24 right-24 h-24 pointer-events-none z-[1]"
+        style="
+            background-image: url(&quot;/images/borders/bottom.webp&quot;);
+            background-size: 100% 100%;
+        "></div>
+</div>
+
+    `
+
+    let body = document.querySelector("body")
+    if (!body) { return }
+    body.appendChild(popupBg)
+    body.appendChild(popup)
+
+}
+
+
+
+function lockShopSetting() {
+    let lockShopRow = document.createElement("tr")
+    lockShopRow.className = "border-t border-ds-brown/15"
+
+    let lockShopRowTitle = document.createElement("td")
+    lockShopRowTitle.className = "py-3 pr-4 text-ds-brown"
+    lockShopRowTitle.textContent = "Lock shop"
+
+    let lockShopRowCheckbox = document.createElement("td")
+    lockShopRowCheckbox.className = "py-3 px-2 text-center"
+
+    let lockShopRowCheckboxInput = document.createElement("input")
+    lockShopRowCheckboxInput.type = "checkbox"
+    lockShopRowCheckboxInput.className = "w-4 h-4 accent-black"
+    lockShopRowCheckboxInput.dataset.boringizerSetting = "preload-shop"
+
+    lockShopRowCheckbox.appendChild(lockShopRowCheckboxInput)
+    lockShopRow.appendChild(lockShopRowTitle)
+    lockShopRow.appendChild(lockShopRowCheckbox)
+    
+    const lockShopStatus = localStorage.getItem("boringizer-lock-shop") == "true" ? true : false 
+    lockShopRowCheckboxInput.checked = lockShopStatus
+    
+    lockShopRowCheckboxInput.addEventListener("change", function() {
+        openDelayPopup()
+    })
+
+    return lockShopRow
+}
+
 function settingsSection() { // copied off the Notification Preferences section but changed a bit
     let section = document.createElement("div")
     section.id = "boringizer-settings"
@@ -102,7 +215,7 @@ function settingsSection() { // copied off the Notification Preferences section 
     sectionContent.appendChild(settingsTable)
     settingsTable.appendChild(settingsTableContent)
 
-    const settings = [grayscaleSetting(), preloadShopSetting()]
+    const settings = [grayscaleSetting(), preloadShopSetting(), lockShopSetting()]
     for (const setting of settings) {
         settingsTableContent.appendChild(setting)
     }
