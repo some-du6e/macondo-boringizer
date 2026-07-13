@@ -19,6 +19,10 @@ function grayscaleSetting() {
     grayscaleRow.appendChild(grayscaleRowTitle)
     grayscaleRow.appendChild(grayScaleRowCheckbox)
 
+    const grayscaleEvent = new CustomEvent("boringizer-update-grayscale");
+
+
+
     const grayscaleStatus = localStorage.getItem("boringizer-grayscale") == "true" ? true : false 
     grayScaleRowCheckboxInput.checked = grayscaleStatus
     
@@ -26,6 +30,8 @@ function grayscaleSetting() {
         const newStatus = grayScaleRowCheckboxInput.checked
         localStorage.setItem("boringizer-grayscale", newStatus.toString())
         console.log("Boringizer: Grayscale setting changed to", newStatus)
+
+        window.dispatchEvent(grayscaleEvent)
     })
 
     return grayscaleRow

@@ -273,7 +273,8 @@ export function renderProjects(information: Information, didLoadProjects: boolea
         projectsContainer = document.createElement("div")
         projectsContainer.id = customProjectsId
         projectsContainer.className =
-            "relative z-10 mx-4 mt-28 mb-32 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-rows-max gap-4"
+            "relative mx-4 mt-28 mb-32 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-rows-max gap-4"
+        projectsContainer.style.zIndex = "101"
         mainContainer.appendChild(projectsContainer)
     }
 

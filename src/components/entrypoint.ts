@@ -7,6 +7,7 @@ import { setProjectPopupHooks } from "./popups"
 import { installDashboardProjectSync, type DashboardProjectSyncState } from "./dashboard-projects"
 import { createFarmAreaLinker } from "./farm-context-menu"
 import { preload } from "./preload.ts"
+import { applyGrayscale } from "./grayscale"
 
 let dashboardSync: (() => void) | null = null
 
@@ -117,6 +118,19 @@ if (!window.macondo.homepagethingObserver) {
         syncTimeout = setTimeout(syncDashboard, 50)
     })
     window.macondo.homepagethingObserver.observe(document.body, {
+        childList: true,
+        subtree: true
+    })
+}
+
+
+window.addEventListener("boringizer-update-grayscale", applyGrayscale);
+
+if (!window.macondo.grayscaleObserver) {
+    window.macondo.grayscaleObserver = new MutationObserver(function() {
+        setTimeout(applyGrayscale, 50)
+    })
+    window.macondo.grayscaleObserver.observe(document.body, {
         childList: true,
         subtree: true
     })

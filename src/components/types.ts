@@ -3,6 +3,7 @@ declare global {
         macondo: {
             homepagethingObserver?: MutationObserver
             landerObserver?: MutationObserver
+            grayscaleObserver?: MutationObserver
         }
     }
 }
