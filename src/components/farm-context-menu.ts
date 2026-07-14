@@ -185,6 +185,14 @@ export function createFarmAreaLinker(information: Information) {
                     continue
                 }
 
+                let colorThing = area.getElementsByClassName("absolute top-1 right-1 w-3 h-3 border-2 border-white/80 z-[5] pointer-events-none")[0] as HTMLElement | undefined
+                if (colorThing) {
+                    console.log(colorThing)
+                    let colorThingColor = colorThing.style.backgroundColor
+                    area.setAttribute("data-macondo-project-color", colorThingColor)
+                }
+
+
                 area.setAttribute("data-macondo-project-name", projectName)
                 area.removeAttribute("data-macondo-project-id")
 
