@@ -160,13 +160,13 @@ function projectCard(project: Project) {
     <!---->
   </div>
   <div class="flex flex-1 flex-col gap-2 p-3 relative">
-    <h3 class="text-base font-bold text-ds-brown leading-tight line-clamp-2">${projectName}</h3>
-    <p class="text-xs text-ds-brown/70 leading-snug line-clamp-2">
+    <h3 class="text-base font-bold text-ds-brown leading-tight line-clamp-2" style="padding-right: 6.5rem">${projectName}</h3>
+    <p class="text-xs text-ds-brown/70 leading-snug" style="height: 3rem; overflow: hidden; padding-right: 6.5rem">
       ${projectDescription}
     </p>
-    <img 
+    <img
       src="/images/fruits/${fruitStageImage}"
-      class="w-12 max-w-full absolute right-3 top-3"
+      class="w-20 h-20 object-contain absolute right-3 top-3"
     >
     <div class="flex items-center justify-between gap-2 mt-1">
 
