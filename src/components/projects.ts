@@ -164,10 +164,19 @@ function projectCard(project: Project) {
     <p class="text-xs text-ds-brown/70 leading-snug" style="height: 3rem; overflow: hidden; padding-right: 6.5rem">
       ${projectDescription}
     </p>
-    <img
-      src="/images/fruits/${fruitStageImage}"
-      class="w-20 h-20 object-contain absolute right-3 top-3"
-    >
+    <div class="absolute right-3 top-3 w-24 h-24">
+      <img
+        src="/images/tierra/ground_tile.webp"
+        alt=""
+        class="absolute bottom-0 left-0 w-24 object-contain"
+      >
+      <img
+        src="/images/fruits/${fruitStageImage}"
+        alt="${projectFruit}"
+        class="absolute object-contain"
+        style="width: 70px; height: 70px; bottom: 20px; left: 50%; transform: translateX(-50%)"
+      >
+    </div>
     <div class="flex items-center justify-between gap-2 mt-1">
 
       <div class="flex items-center gap-1 shrink-0">
