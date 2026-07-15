@@ -6,7 +6,7 @@
 ![GitHub Release](https://img.shields.io/github/v/release/some-du6e/HCTGplus)
 ![GitHub License](https://img.shields.io/github/license/some-du6e/HCTGplus)
 </div>
-<!-- sorry maxstellar for skidding this ^-->
+<!-- sorry stelle for skidding this ^-->
 
 <div align="center">
 <img src="img/hctgplusfullkindabad.png" width="67%">

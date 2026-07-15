@@ -158,7 +158,7 @@ export function doTopbarstuff(information: Information) {
     if (moneydiv) {
         if (moneydiv.tagName === "A") {
             // we have alr done it
-            console.log("macondo: money div is already GAYYY")
+            console.log("macondo: money div is already done bud")
             moneydiv = null
         }
     }
