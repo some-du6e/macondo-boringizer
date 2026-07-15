@@ -25,10 +25,6 @@ function getProjectPopupHooks() {
     return projectPopupHooks
 }
 
-function isShopModalOpen() {
-    return !!document.querySelector(".modal-frame")
-}
-
 function findShopOpener() {
     return Array.from(document.querySelectorAll("button")).find(function (button) {
         return button.textContent?.trim() === "Open the shop"
@@ -44,7 +40,7 @@ export function shoppopup(e?: MouseEvent) {
     }
 
     console.log("macondo: opening shop popup")
-    if (isShopModalOpen()) {
+    if (document.querySelector(".modal-frame")) {
         return
     }
 
@@ -88,7 +84,7 @@ export function shoppopup(e?: MouseEvent) {
 
     opener.click()
     setTimeout(function () {
-        if (isShopModalOpen()) {
+        if (document.querySelector(".modal-frame")) {
             restoreGameWorldForModal()
             return
         }
@@ -96,10 +92,6 @@ export function shoppopup(e?: MouseEvent) {
         restoreGameWorldAfterFailure()
         console.warn("macondo: shop popup did not open")
     }, 400)
-}
-
-function isProfileModalOpen() {
-    return !!document.querySelector(".modal-frame")
 }
 
 function findProfileOpener() {
@@ -121,7 +113,7 @@ export function openProfilePopup(event?: MouseEvent) {
     }
 
     console.log("macondo: opening profile popup")
-    if (isProfileModalOpen()) {
+    if (document.querySelector(".modal-frame")) {
         return
     }
 
@@ -165,7 +157,7 @@ export function openProfilePopup(event?: MouseEvent) {
 
     opener.click()
     setTimeout(function () {
-        if (isProfileModalOpen()) {
+        if (document.querySelector(".modal-frame")) {
             restoreGameWorldForModal()
             return
         }

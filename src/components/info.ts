@@ -11,36 +11,6 @@ export function getInfo(information: Information, onProjectsLoaded?: () => void)
             "projects": []
         }
 
-        function findImageUrl(value: unknown): string | null {
-            if (!value) { return null }
-            if (typeof value === "string") {
-                if (/^https?:\/\/.+\.(webp|png|jpe?g|gif)(\?.*)?$/i.test(value) || value.includes("cachet.dunkirk.sh") || value.includes("l4.dunkirk.sh")) {
-                    return value
-                }
-                return null
-            }
-            if (Array.isArray(value)) {
-                for (let item of value) {
-                    let found: string | null = findImageUrl(item)
-                    if (found) { return found }
-                }
-                return null
-            }
-            if (typeof value === "object") {
-                let likelyKeys = ["pfp", "avatar", "avatarUrl", "avatar_url", "image", "imageUrl", "image_url", "photo", "photoUrl", "photo_url", "picture"]
-                let record = value as Record<string, unknown>
-                for (let key of likelyKeys) {
-                    let found: string | null = findImageUrl(record[key])
-                    if (found) { return found }
-                }
-                for (let key of Object.keys(record)) {
-                    let found: string | null = findImageUrl(record[key])
-                    if (found) { return found }
-                }
-            }
-            return null
-        }
-
         let controller = new AbortController()
         let timeoutId = setTimeout(function() {
             controller.abort()
@@ -56,7 +26,7 @@ export function getInfo(information: Information, onProjectsLoaded?: () => void)
             .then(function (userInfo: Record<string, unknown>) {
                 info.user.name = typeof userInfo.name === "string" ? userInfo.name : info.user.name
                 info.user.id = typeof userInfo.id === "string" ? userInfo.id : info.user.id
-                info.user.pfp = findImageUrl(userInfo) || info.user.pfp
+                info.user.pfp = typeof userInfo.pfp === "string" ? userInfo.pfp : info.user.pfp
                 
             
                 doTopbarstuff(info)
