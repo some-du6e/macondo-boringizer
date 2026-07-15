@@ -1,5 +1,5 @@
 import type { Project, Information } from "./types"
-import { projectcontextmenu, projectpopup, newprojectpopup } from "./popups"
+import { projectcontextmenu, projectpopup, newprojectpopup, getProjectFarmTile } from "./popups"
 import { customProjectsId, placeholderProjects } from "./consts.ts"
 
 let renderedProjectsKey = ""
@@ -82,6 +82,33 @@ function escapeHtml(value: unknown) {
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#39;")
+}
+
+async function getProjectColor(project: Project) {
+    let projectId = project.id
+
+    let farmTile = await getProjectFarmTile(projectId)
+    console.log(project, "farmTile", farmTile)
+    if (!farmTile) { return null }
+
+    return farmTile.getAttribute("data-macondo-project-color") || null
+}
+
+async function tintProjectCard(card: HTMLElement, project: Project) {
+    let color = await getProjectColor(project)
+    if (!color) { return }
+
+    let cardDetails = card.children[1]
+    if (!(cardDetails instanceof HTMLElement)) { return }
+
+    let tint = document.createElement("div")
+    tint.className = "absolute inset-0 pointer-events-none"
+    tint.style.backgroundColor = color
+    tint.style.opacity = "0.14"
+    tint.style.zIndex = "1"
+    tint.setAttribute("aria-hidden", "true")
+
+    cardDetails.appendChild(tint)
 }
 
 function projectCard(project: Project) {
@@ -225,6 +252,7 @@ function projectCard(project: Project) {
 
         `
     card.innerHTML = cardContent
+    void tintProjectCard(card, project)
 
     card.addEventListener("contextmenu", function (e) {
         console.log("macondo: project card clicked", project.id)

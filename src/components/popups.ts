@@ -192,7 +192,7 @@ function findProjectFarmTile(projectId: string | number | null | undefined) {
         return null
     }
 
-    async function getProjectFarmTile(projectId: string | number | null | undefined) {
+    export async function getProjectFarmTile(projectId: string | number | null | undefined) {
         let hooks = getProjectPopupHooks()
         if (!hooks) { return null }
 
