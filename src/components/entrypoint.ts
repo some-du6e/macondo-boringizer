@@ -8,8 +8,11 @@ import { installDashboardProjectSync, type DashboardProjectSyncState } from "./d
 import { createFarmAreaLinker } from "./farm-context-menu"
 import { preload } from "./preload.ts"
 import { applyGrayscale } from "./grayscale"
+import { interceptTour } from "./compat/macondoutils/tour-intercept"
 
 let dashboardSync: (() => void) | null = null
+
+interceptTour()
 
 function syncHomepageDashboard() {
     setupHomepageDashboard()

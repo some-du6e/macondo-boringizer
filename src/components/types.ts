@@ -5,6 +5,7 @@ declare global {
             landerObserver?: MutationObserver
             grayscaleObserver?: MutationObserver
             farmColorObserver?: MutationObserver
+            tourObserver?: MutationObserver
         }
     }
 }
