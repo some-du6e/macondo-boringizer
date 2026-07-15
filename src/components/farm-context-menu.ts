@@ -1,5 +1,7 @@
 import type { Information } from "./types"
 
+const farmColorThingClassName = "absolute top-1 right-1 w-3 h-3 border-2 border-white/80 z-[5] pointer-events-none"
+
 function wait(ms: number) {
     return new Promise(function(resolve) {
         setTimeout(resolve, ms)
@@ -146,9 +148,50 @@ async function rightclickandextractfarmtile(tile: Element | null, justrightclick
     return projectName || null
 }
 
-export function createFarmAreaLinker(information: Information) {
+export function createFarmAreaLinker(information: Information, onProjectColorChange: () => void) {
     let linkedFarmAreasKey = ""
     let isLinkingFarmAreas = false
+
+    function getFarmColorThing(area: Element) {
+        return area.getElementsByClassName(farmColorThingClassName)[0] as HTMLElement | undefined
+    }
+
+    function syncFarmAreaColor(area: HTMLElement) {
+        let color = getFarmColorThing(area)?.style.backgroundColor || ""
+        let oldColor = area.getAttribute("data-macondo-project-color") || ""
+        if (color === oldColor) { return false }
+
+        if (color) {
+            area.setAttribute("data-macondo-project-color", color)
+        } else {
+            area.removeAttribute("data-macondo-project-color")
+        }
+        return true
+    }
+
+    window.macondo.farmColorObserver?.disconnect()
+    window.macondo.farmColorObserver = new MutationObserver(function(mutations) {
+        let didChangeProjectColor = false
+
+        for (let mutation of mutations) {
+            let colorThing = mutation.target
+            if (!(colorThing instanceof HTMLElement)) { continue }
+
+            let area = colorThing.closest<HTMLElement>(".farm-tile-project")
+            if (!area || getFarmColorThing(area) !== colorThing) { continue }
+
+            didChangeProjectColor = syncFarmAreaColor(area) || didChangeProjectColor
+        }
+
+        if (didChangeProjectColor) {
+            onProjectColorChange()
+        }
+    })
+    window.macondo.farmColorObserver.observe(document.body, {
+        attributes: true,
+        subtree: true,
+        attributeFilter: ["style"]
+    })
 
     function getFarmAreasKey(areas: HTMLCollectionOf<HTMLElement>) {
         let projectList = information.projects || []
@@ -185,13 +228,7 @@ export function createFarmAreaLinker(information: Information) {
                     continue
                 }
 
-                let colorThing = area.getElementsByClassName("absolute top-1 right-1 w-3 h-3 border-2 border-white/80 z-[5] pointer-events-none")[0] as HTMLElement | undefined
-                if (colorThing) {
-                    console.log(colorThing)
-                    let colorThingColor = colorThing.style.backgroundColor
-                    area.setAttribute("data-macondo-project-color", colorThingColor)
-                }
-
+                syncFarmAreaColor(area)
 
                 area.setAttribute("data-macondo-project-name", projectName)
                 area.removeAttribute("data-macondo-project-id")

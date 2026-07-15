@@ -1,8 +1,10 @@
 import type { Project, Information } from "./types"
-import { projectcontextmenu, projectpopup, newprojectpopup, getProjectFarmTile } from "./popups"
+import { projectcontextmenu, projectpopup, newprojectpopup } from "./popups"
 import { customProjectsId, placeholderProjects } from "./consts.ts"
 
 let renderedProjectsKey = ""
+const projectCardIdAttribute = "data-macondo-project-card-id"
+const projectCardTintAttribute = "data-macondo-project-card-tint"
 
 export function resetProjectsRenderCache() {
     renderedProjectsKey = ""
@@ -84,31 +86,46 @@ function escapeHtml(value: unknown) {
         .replace(/'/g, "&#39;")
 }
 
-async function getProjectColor(project: Project) {
-    let projectId = project.id
-
-    let farmTile = await getProjectFarmTile(projectId)
-    console.log(project, "farmTile", farmTile)
-    if (!farmTile) { return null }
-
-    return farmTile.getAttribute("data-macondo-project-color") || null
-}
-
-async function tintProjectCard(card: HTMLElement, project: Project) {
-    let color = await getProjectColor(project)
-    if (!color) { return }
-
+function setProjectCardTint(card: HTMLElement, color: string | null) {
     let cardDetails = card.children[1]
     if (!(cardDetails instanceof HTMLElement)) { return }
 
-    let tint = document.createElement("div")
+    let existingTint = cardDetails.querySelector<HTMLElement>(`[${projectCardTintAttribute}]`)
+    if (!color) {
+        existingTint?.remove()
+        return
+    }
+
+    let tint = existingTint || document.createElement("div")
+    tint.setAttribute(projectCardTintAttribute, "")
     tint.className = "absolute inset-0 pointer-events-none"
     tint.style.backgroundColor = color
     tint.style.opacity = "0.14"
     tint.style.zIndex = "1"
     tint.setAttribute("aria-hidden", "true")
 
-    cardDetails.appendChild(tint)
+    if (!existingTint) {
+        cardDetails.appendChild(tint)
+    }
+}
+
+export function refreshProjectCardTints() {
+    let projectColors = new Map<string, string>()
+    let farmTiles = document.querySelectorAll<HTMLElement>("[data-macondo-project-id][data-macondo-project-color]")
+
+    for (let farmTile of farmTiles) {
+        let projectId = farmTile.getAttribute("data-macondo-project-id")
+        let color = farmTile.getAttribute("data-macondo-project-color")
+        if (projectId && color) {
+            projectColors.set(projectId, color)
+        }
+    }
+
+    let cards = document.querySelectorAll<HTMLElement>(`[${projectCardIdAttribute}]`)
+    for (let card of cards) {
+        let projectId = card.getAttribute(projectCardIdAttribute)
+        setProjectCardTint(card, projectId ? projectColors.get(projectId) || null : null)
+    }
 }
 
 function projectCard(project: Project) {
@@ -153,6 +170,9 @@ function projectCard(project: Project) {
     card.setAttribute("role", "button")
     card.tabIndex = 0
     card.setAttribute("aria-label", "View project " + projectName)
+    if (project.id != null) {
+        card.setAttribute(projectCardIdAttribute, String(project.id))
+    }
     let cardContent = `
   <div
     class="relative aspect-[16/10] bg-ds-brown/10 overflow-hidden border-b-[3px] border-ds-brown/10">
@@ -252,7 +272,6 @@ function projectCard(project: Project) {
 
         `
     card.innerHTML = cardContent
-    void tintProjectCard(card, project)
 
     card.addEventListener("contextmenu", function (e) {
         console.log("macondo: project card clicked", project.id)
@@ -344,6 +363,7 @@ export function renderProjects(information: Information, didLoadProjects: boolea
         projectsKey === renderedProjectsKey &&
         projectsContainer.children.length === expectedProjectCardCount
     ) {
+        refreshProjectCardTints()
         return
     }
     renderedProjectsKey = projectsKey
@@ -354,4 +374,5 @@ export function renderProjects(information: Information, didLoadProjects: boolea
     }
 
     projectsContainer.appendChild(newProjectCard())
+    refreshProjectCardTints()
 }

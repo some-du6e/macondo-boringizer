@@ -4,6 +4,7 @@ declare global {
             homepagethingObserver?: MutationObserver
             landerObserver?: MutationObserver
             grayscaleObserver?: MutationObserver
+            farmColorObserver?: MutationObserver
         }
     }
 }

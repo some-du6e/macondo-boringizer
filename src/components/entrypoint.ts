@@ -1,7 +1,7 @@
 import { doTopbarstuff } from "./topbar"
 import type { Information } from "./types"
 import { defaultProfilePfp } from "./consts.ts" // TODO: temp
-import { renderProjects, prepareDashboard, resetProjectsRenderCache } from "./projects"
+import { renderProjects, prepareDashboard, refreshProjectCardTints, resetProjectsRenderCache } from "./projects"
 import { getInfo } from "./info"
 import { setProjectPopupHooks } from "./popups"
 import { installDashboardProjectSync, type DashboardProjectSyncState } from "./dashboard-projects"
@@ -41,12 +41,17 @@ function setupHomepageDashboard() {
         isWaitingForNewProjectClose: false,
         didSeeNewProjectPopup: false
     }
-    let farmAreaLinker = createFarmAreaLinker(information)
+    let farmAreaLinker = createFarmAreaLinker(information, refreshProjectCardTints)
+
+    async function linkFarmAreasAndRefreshCards() {
+        await farmAreaLinker.linkFarmAreasToProjects()
+        refreshProjectCardTints()
+    }
 
     setProjectPopupHooks({
         isLinkingFarmAreas: farmAreaLinker.isLinkingFarmAreas,
         resetLinkedFarmAreasKey: farmAreaLinker.resetLinkedFarmAreasKey,
-        linkFarmAreasToProjects: farmAreaLinker.linkFarmAreasToProjects,
+        linkFarmAreasToProjects: linkFarmAreasAndRefreshCards,
         rightclickandextractfarmtile: farmAreaLinker.rightclickandextractfarmtile,
         setNewProjectCloseWait: function(isWaiting, didSeePopup) {
             projectSyncState.isWaitingForNewProjectClose = isWaiting
@@ -63,7 +68,7 @@ function setupHomepageDashboard() {
             didLoadProjects = true
             resetProjectsRenderCache()
             renderProjects(information, didLoadProjects)
-            farmAreaLinker.linkFarmAreasToProjects().catch(function(error) {
+            linkFarmAreasAndRefreshCards().catch(function(error) {
                 console.warn("macondo: farm area linking failed after loading projects", error)
             })
         })
@@ -76,7 +81,7 @@ function setupHomepageDashboard() {
             return didLoadProjects
         },
         resetLinkedFarmAreasKey: farmAreaLinker.resetLinkedFarmAreasKey,
-        linkFarmAreasToProjects: farmAreaLinker.linkFarmAreasToProjects,
+        linkFarmAreasToProjects: linkFarmAreasAndRefreshCards,
         loadInfo: loadInfo
     })
 
