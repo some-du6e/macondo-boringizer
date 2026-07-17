@@ -1,6 +1,11 @@
 import { shoppopup, openProfilePopup } from "./popups"
 import type { Information } from "./types"
 import { defaultProfilePfp } from "./consts.ts"
+import { fixMUSettings } from "./compat/macondoutils/settings-intercept.ts"
+
+
+
+
 function makepfp(information: Information) {
     let pfpUrl = information.user && information.user.pfp ? information.user.pfp : defaultProfilePfp
     let existingPfp = document.getElementById("macondo-boringizer-pfp") as HTMLAnchorElement | null
@@ -174,4 +179,5 @@ export function doTopbarstuff(information: Information) {
 
         moneydiv = newmoneydiv
     }
+    fixMUSettings(topbar)
 }
