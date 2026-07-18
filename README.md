@@ -20,10 +20,23 @@ Install from the [webstore](https://chromewebstore.google.com/detail/hctg+/kdndf
 4. Click `Load unpacked` and select the unzipped file
 5. Done
 
-## API
+## Contributing
+Requirements: 
+- bun 1.2.0
+- nodejs 22.12+ (just in case)
+1. Install packages
+```bash
+bun i
+```
+### running it in dev
+```bash
+bun run dev
+```
 
-See [API.md](API.md) for notes on Macondo's real project API, including
-`GET /api/projects/{id}` for fetching project name, level, and description.
+### building for chrome/firefox/edge
+```bash
+bun run build:chrome/firefox/edge
+```
 
 ## Features
 

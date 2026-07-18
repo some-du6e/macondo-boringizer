@@ -1,15 +1,10 @@
 {
     "private": true,
-    "name": "boring-macondo",
-    "description": "JavaScript-based extension with a sidebar panel. Adds a sidebar with a simple page.",
+    "name": "macondo-borignizer",
+    "description": "does anyone check this?",
     "version": "1.0.0",
     "license": "MIT",
     "type": "module",
-    "author": {
-        "name": "Your Name",
-        "email": "your@email.com",
-        "url": "https://yourwebsite.com"
-    },
     "scripts": {
         "dev": "extension dev --browser chrome --extensions extensions/macondoutils --starting-url https://macondo.hackclub.com/",
         "dev:chromium": "extension dev --browser chromium --extensions extensions/macondoutils --starting-url https://macondo.hackclub.com/",
