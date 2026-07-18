@@ -12,8 +12,6 @@ import { interceptTour } from "./compat/macondoutils/tour-intercept"
 
 let dashboardSync: (() => void) | null = null
 
-interceptTour()
-
 function syncHomepageDashboard() {
     setupHomepageDashboard()
     if (dashboardSync) {
@@ -112,34 +110,37 @@ function syncDashboard() {
     syncHomepageDashboard()
 }
 
-window.addEventListener("pageChange", function() {
+export function initializeDashboard() {
+    interceptTour()
+
+    window.addEventListener("pageChange", function() {
+        setTimeout(syncDashboard, 200)
+    })
+
     setTimeout(syncDashboard, 200)
-})
 
-setTimeout(syncDashboard, 200)
+    let syncTimeout: ReturnType<typeof setTimeout> | undefined
+    window.macondo = window.macondo || {}
+    if (!window.macondo.homepagethingObserver) {
+        window.macondo.homepagethingObserver = new MutationObserver(function() {
+            clearTimeout(syncTimeout)
+            syncTimeout = setTimeout(syncDashboard, 50)
+        })
+        window.macondo.homepagethingObserver.observe(document.body, {
+            childList: true,
+            subtree: true
+        })
+    }
 
-let syncTimeout: ReturnType<typeof setTimeout> | undefined
-window.macondo = window.macondo || {}
-if (!window.macondo.homepagethingObserver) {
-    window.macondo.homepagethingObserver = new MutationObserver(function() {
-        clearTimeout(syncTimeout)
-        syncTimeout = setTimeout(syncDashboard, 50)
-    })
-    window.macondo.homepagethingObserver.observe(document.body, {
-        childList: true,
-        subtree: true
-    })
-}
+    window.addEventListener("boringizer-update-grayscale", applyGrayscale)
 
-
-window.addEventListener("boringizer-update-grayscale", applyGrayscale);
-
-if (!window.macondo.grayscaleObserver) {
-    window.macondo.grayscaleObserver = new MutationObserver(function() {
-        setTimeout(applyGrayscale, 50)
-    })
-    window.macondo.grayscaleObserver.observe(document.body, {
-        childList: true,
-        subtree: true
-    })
+    if (!window.macondo.grayscaleObserver) {
+        window.macondo.grayscaleObserver = new MutationObserver(function() {
+            setTimeout(applyGrayscale, 50)
+        })
+        window.macondo.grayscaleObserver.observe(document.body, {
+            childList: true,
+            subtree: true
+        })
+    }
 }

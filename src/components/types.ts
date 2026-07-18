@@ -1,6 +1,7 @@
 declare global {
     interface Window {
         __macondoUtilsLoaded?: boolean
+        __macondoBoringizerLoaded?: boolean
         macondo: {
             homepagethingObserver?: MutationObserver
             landerObserver?: MutationObserver

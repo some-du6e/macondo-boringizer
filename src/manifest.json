@@ -16,17 +16,17 @@
     "content_scripts": [
         {
             "matches": ["*://macondo.hackclub.com/*"],
-            "js": ["components/entrypoint.ts"],
+            "js": ["entrypoints/dashboard.ts"],
             "run_at": "document_idle"
         },
         {
             "matches": ["*://macondo.hackclub.com/"],
-            "js": ["components/lander.ts"],
+            "js": ["entrypoints/lander.ts"],
             "run_at": "document_idle"
         },
         {
             "matches": ["*://macondo.hackclub.com/profile"],
-            "js": ["components/profile-entrypoint.ts"],
+            "js": ["entrypoints/profile.ts"],
             "run_at": "document_idle"
         }
     ]
