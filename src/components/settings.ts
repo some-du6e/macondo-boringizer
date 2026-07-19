@@ -69,29 +69,80 @@ function preloadShopSetting() {
     return preloadShopRow
 }
 
-async function fatDelayThingIdkHowToNameThis(secs: number, container: Element) {
+function fatDelayThingIdkHowToNameThis(secs: number, container: Element) {
     let bigboy = document.createElement("div")
-    bigboy.className = 'w-full h-full min-h-6xl'
-    bigboy.style.backgroundColor = "#924860"
-    bigboy.style.minHeight = "73rem"
-
-
-
+    bigboy.className = "relative flex w-full flex-col items-center justify-between px-8 py-24 text-center"
+    bigboy.style.minHeight = "42rem"
+    bigboy.innerHTML = `
+        <div class="max-w-2xl">
+            <p class="mb-3 text-sm font-bold uppercase tracking-widest text-ds-brown/60">Hold up</p>
+            <h2 class="text-4xl font-bold leading-tight text-ds-brown">Are you sure you want to change this?</h2>
+            <p class="mt-4 text-base text-ds-brown/70">Take a second before changing your shop lock.</p>
+        </div>
+        <div class="flex w-full max-w-md flex-col items-center gap-5">
+            <button type="button" data-delay-choice="no" class="w-full border-[3px] border-ds-brown bg-ds-brown px-6 py-3 text-base font-bold text-ds-cream transition-colors hover:bg-ds-brown/90">
+                No, keep it as it was
+            </button>
+            <div class="h-2 w-full overflow-hidden border-2 border-ds-brown/30" aria-hidden="true">
+                <div data-delay-progress class="h-full w-full bg-ds-brown"></div>
+            </div>
+            <button type="button" data-delay-choice="yes" disabled class="text-sm font-bold text-ds-brown/40 transition-opacity disabled:cursor-not-allowed">
+                Yes, change it <span data-delay-seconds>(${Math.ceil(secs)}s)</span>
+            </button>
+        </div>
+    `
     container.appendChild(bigboy)
 
-    await new Promise(resolve => setTimeout(resolve, 5000));
-    return 
+    let noButton = bigboy.querySelector<HTMLButtonElement>('[data-delay-choice="no"]')
+    let yesButton = bigboy.querySelector<HTMLButtonElement>('[data-delay-choice="yes"]')
+    let progress = bigboy.querySelector<HTMLElement>("[data-delay-progress]")
+    let seconds = bigboy.querySelector<HTMLElement>("[data-delay-seconds]")
+    if (!noButton || !yesButton || !progress || !seconds) {
+        return Promise.resolve(false)
+    }
+
+    let shrinkAnimation = progress.animate(
+        [
+            { transform: "scaleX(1)" },
+            { transform: "scaleX(0)" },
+        ],
+        {
+            duration: secs * 1000,
+            easing: "linear",
+            fill: "forwards",
+        },
+    )
+    progress.style.transformOrigin = "left"
+
+    let secondsLeft = Math.ceil(secs)
+    let countdown = window.setInterval(function() {
+        secondsLeft -= 1
+        seconds.textContent = secondsLeft > 0 ? `(${secondsLeft}s)` : ""
+    }, 1000)
+
+    shrinkAnimation.addEventListener("finish", function() {
+        window.clearInterval(countdown)
+        seconds.textContent = ""
+        yesButton.disabled = false
+        yesButton.className = "text-sm font-bold text-ds-brown underline decoration-2 underline-offset-4 hover:opacity-70 transition-opacity"
+    })
+
+    return new Promise<boolean>(function(resolve) {
+        noButton.addEventListener("click", function() {
+            window.clearInterval(countdown)
+            shrinkAnimation.cancel()
+            resolve(false)
+        }, { once: true })
+        yesButton.addEventListener("click", function() {
+            if (yesButton.disabled) { return }
+            resolve(true)
+        }, { once: true })
+    })
 
 }
 async function openDelayPopup(secs: number) { // inspired by onesec
     let popupBg = document.createElement("div")
     popupBg.className = "fixed inset-0 z-[200] bg-black/70 backdrop-blur-sm"
-
-    popupBg.addEventListener("click", function() {
-        popupBg?.remove()
-        popup?.remove()
-    })
-
 
     let popup = document.createElement("div")
     popup.className = "fixed inset-0 z-[201] flex items-center justify-center pointer-events-none"
@@ -164,11 +215,11 @@ async function openDelayPopup(secs: number) { // inspired by onesec
 
     let thingamajigContainer = popup.querySelector("#thingamajig-container")
     if (!thingamajigContainer) { console.log("thingamajigContainer not found"); return }
-    ;(thingamajigContainer as HTMLElement).style.backgroundColor = "#924860"
 
-    await fatDelayThingIdkHowToNameThis(secs, thingamajigContainer)
-
-    console.log("poo")
+    let result = await fatDelayThingIdkHowToNameThis(secs, thingamajigContainer)
+    popupBg.remove()
+    popup.remove()
+    return result
 
 }
 
@@ -197,8 +248,14 @@ function lockShopSetting() {
     const lockShopStatus = localStorage.getItem("boringizer-lock-shop") == "true" ? true : false 
     lockShopRowCheckboxInput.checked = lockShopStatus
     
-    lockShopRowCheckboxInput.addEventListener("change", function() {
-        openDelayPopup(10)
+    lockShopRowCheckboxInput.addEventListener("change", async function() {
+        let newStatus = lockShopRowCheckboxInput.checked
+        let confirmed = await openDelayPopup(5)
+        if (!confirmed) {
+            lockShopRowCheckboxInput.checked = !newStatus
+            return
+        }
+        localStorage.setItem("boringizer-lock-shop", newStatus.toString())
     })
 
     return lockShopRow
