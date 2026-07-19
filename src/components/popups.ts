@@ -31,6 +31,11 @@ function findShopOpener() {
     })
 }
 export function shoppopup(e?: MouseEvent) {
+    const lockShopStatus = localStorage.getItem("boringizer-lock-shop") == "true" ? true : false 
+    if (lockShopStatus) { alert("nuh uh buddy, the shop is locked"); return}
+
+
+
     if (e && (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)) {
         return
     }

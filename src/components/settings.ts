@@ -83,7 +83,7 @@ function fatDelayThingIdkHowToNameThis(secs: number, container: Element) {
             <button type="button" data-delay-choice="no" class="w-full border-[3px] border-ds-brown bg-ds-brown px-6 py-3 text-base font-bold text-ds-cream transition-colors hover:bg-ds-brown/90">
                 No, keep it as it was
             </button>
-            <div class="h-2 w-full overflow-hidden border-2 border-ds-brown/30" aria-hidden="true">
+            <div data-delay-progress-track class="h-2 w-full overflow-hidden border-2 border-ds-brown/30" aria-hidden="true">
                 <div data-delay-progress class="h-full w-full bg-ds-brown"></div>
             </div>
             <button type="button" data-delay-choice="yes" disabled class="text-sm font-bold text-ds-brown/40 transition-opacity disabled:cursor-not-allowed">
@@ -96,8 +96,9 @@ function fatDelayThingIdkHowToNameThis(secs: number, container: Element) {
     let noButton = bigboy.querySelector<HTMLButtonElement>('[data-delay-choice="no"]')
     let yesButton = bigboy.querySelector<HTMLButtonElement>('[data-delay-choice="yes"]')
     let progress = bigboy.querySelector<HTMLElement>("[data-delay-progress]")
+    let progressTrack = bigboy.querySelector<HTMLElement>("[data-delay-progress-track]")
     let seconds = bigboy.querySelector<HTMLElement>("[data-delay-seconds]")
-    if (!noButton || !yesButton || !progress || !seconds) {
+    if (!noButton || !yesButton || !progress || !progressTrack || !seconds) {
         return Promise.resolve(false)
     }
 
@@ -125,6 +126,10 @@ function fatDelayThingIdkHowToNameThis(secs: number, container: Element) {
         seconds.textContent = ""
         yesButton.disabled = false
         yesButton.className = "text-sm font-bold text-ds-brown underline decoration-2 underline-offset-4 hover:opacity-70 transition-opacity"
+        progressTrack.animate(
+            [{ opacity: 1 }, { opacity: 0 }],
+            { duration: 300, easing: "ease-out", fill: "forwards" },
+        )
     })
 
     return new Promise<boolean>(function(resolve) {
@@ -250,7 +255,7 @@ function lockShopSetting() {
     
     lockShopRowCheckboxInput.addEventListener("change", async function() {
         let newStatus = lockShopRowCheckboxInput.checked
-        let confirmed = await openDelayPopup(5)
+        let confirmed = await openDelayPopup(14)
         if (!confirmed) {
             lockShopRowCheckboxInput.checked = !newStatus
             return
