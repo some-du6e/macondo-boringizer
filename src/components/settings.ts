@@ -69,8 +69,21 @@ function preloadShopSetting() {
     return preloadShopRow
 }
 
+async function fatDelayThingIdkHowToNameThis(secs: number, container: Element) {
+    let bigboy = document.createElement("div")
+    bigboy.className = 'w-full h-full min-h-6xl'
+    bigboy.style.backgroundColor = "#924860"
+    bigboy.style.minHeight = "73rem"
 
-function openDelayPopup() { // inspired by onesec
+
+
+    container.appendChild(bigboy)
+
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    return 
+
+}
+async function openDelayPopup(secs: number) { // inspired by onesec
     let popupBg = document.createElement("div")
     popupBg.className = "fixed inset-0 z-[200] bg-black/70 backdrop-blur-sm"
 
@@ -84,13 +97,13 @@ function openDelayPopup() { // inspired by onesec
     popup.className = "fixed inset-0 z-[201] flex items-center justify-center pointer-events-none"
     popup.innerHTML = `
     <div
-    class="relative pl-5 pt-4 pr-6 pb-6 flex flex-col modal-frame relative w-full max-w-6xl mx-4 pointer-events-auto max-h-[90vh]">
+    class="relative pl-5 pt-4 pr-6 flex flex-col modal-frame relative w-full max-w-6xl mx-4 pointer-events-auto max-h-[90vh]">
     <div class="absolute top-2 bottom-2 left-3 right-3 bg-parchment"></div>
-    <div class="relative z-[1] flex-1 min-h-0 w-full p-4 overflow-y-auto">
+    <div class="relative z-[1] flex-1 min-h-0 w-full  overflow-y-auto">
         <div class="bg-parchment">
             <div
-                class="max-w-4xl mx-auto px-4 pb-12 pt-6 relative overflow-x-hidden">
-                system alert: we will add amazon grants and food grants
+                class="max-w-6xl mx-auto relative overflow-x-hidden"
+                id="thingamajig-container">
             </div>
         </div>
     </div>
@@ -149,6 +162,14 @@ function openDelayPopup() { // inspired by onesec
     body.appendChild(popupBg)
     body.appendChild(popup)
 
+    let thingamajigContainer = popup.querySelector("#thingamajig-container")
+    if (!thingamajigContainer) { console.log("thingamajigContainer not found"); return }
+    ;(thingamajigContainer as HTMLElement).style.backgroundColor = "#924860"
+
+    await fatDelayThingIdkHowToNameThis(secs, thingamajigContainer)
+
+    console.log("poo")
+
 }
 
 
@@ -177,7 +198,7 @@ function lockShopSetting() {
     lockShopRowCheckboxInput.checked = lockShopStatus
     
     lockShopRowCheckboxInput.addEventListener("change", function() {
-        openDelayPopup()
+        openDelayPopup(10)
     })
 
     return lockShopRow
