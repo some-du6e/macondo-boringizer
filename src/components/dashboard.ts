@@ -9,6 +9,7 @@ import { createFarmAreaLinker } from "./farm-context-menu"
 import { preload } from "./preload.ts"
 import { applyGrayscale } from "./grayscale"
 import { interceptTour } from "./compat/macondoutils/tour-intercept"
+import { applyToSettingsDiv } from "./settings"
 
 let dashboardSync: (() => void) | null = null
 
@@ -101,6 +102,11 @@ function setupHomepageDashboard() {
         dashboardProjectSync.syncActiveProjectFromPopupDom()
         renderProjects(information, didLoadProjects)
         doTopbarstuff(information)
+
+        let settingsDiv = document.getElementsByClassName("relative z-10 max-w-4xl mx-auto px-4 pb-12 pt-6 flex flex-col gap-6")[0]
+        if (settingsDiv) {
+            applyToSettingsDiv(settingsDiv)
+        }
     }
 
     dashboardSync = syncDashboardState
