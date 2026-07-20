@@ -22,6 +22,12 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
       - name: Set release metadata
         id: release_meta
         run: |
@@ -54,26 +60,17 @@ jobs:
           fi
         shell: bash
 
-      - name: Build extension package
-        shell: bash
-        run: |
-          set -euo pipefail
+      - name: Check types
+        run: bunx tsc --noEmit
 
-          mkdir -p dist
-          cd src
-          zip -r "../dist/hctgplus-${{ steps.release_meta.outputs.channel }}.zip" \
-            manifest.json \
-            content.js \
-            service-worker.js \
-            snippet.html \
-            components \
-            icons
+      - name: Build extension package
+        run: bun run build:chrome -- --zip --zip-filename macondo-boringizer
 
       - name: Publish GitHub release
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
-          artifacts: dist/hctgplus-${{ steps.release_meta.outputs.channel }}.zip
+          artifacts: dist/chrome/macondoboringizer.zip
           generateReleaseNotes: true
           makeLatest: ${{ steps.release_meta.outputs.channel == 'stable' && 'true' || 'false' }}
           name: ${{ steps.release_meta.outputs.release_name }}
@@ -90,4 +87,4 @@ jobs:
           client_secret: ${{ secrets.CHROME_CLIENT_SECRET }}
           extension_id: ${{ secrets.CHROME_EXTENSION_ID }}
           refresh_token: ${{ secrets.CHROME_REFRESH_TOKEN }}
-          zip_file: dist/hctgplus-${{ steps.release_meta.outputs.channel }}.zip
+          zip_file: dist/chrome/macondoboringizer.zip
