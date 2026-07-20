@@ -26,7 +26,7 @@ export function getInfo(information: Information, onProjectsLoaded?: () => void)
             .then(function (userInfo: Record<string, unknown>) {
                 info.user.name = typeof userInfo.name === "string" ? userInfo.name : info.user.name
                 info.user.id = typeof userInfo.id === "string" ? userInfo.id : info.user.id
-                info.user.pfp = typeof userInfo.pfp === "string" ? userInfo.pfp : info.user.pfp
+                info.user.pfp = typeof userInfo.image === "string" ? userInfo.image : info.user.pfp
                 
             
                 doTopbarstuff(info)
