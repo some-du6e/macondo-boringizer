@@ -9,7 +9,7 @@
         "dev": "extension dev --browser chrome --extensions extensions/macondoutils --starting-url https://macondo.hackclub.com/",
         "dev:chromium": "extension dev --browser chromium --extensions extensions/macondoutils --starting-url https://macondo.hackclub.com/",
         "start": "extension start",
-        "build": "extension build",
+        "build": "extension build --browser chrome",
         "preview": "extension preview",
         "build:chrome": "extension build --browser chrome",
         "build:firefox": "extension build --browser firefox",
@@ -17,6 +17,6 @@
     },
     "dependencies": {},
     "devDependencies": {
-        "extension": "^4.0.3"
+        "extension": "^4.0.13"
     }
 }
