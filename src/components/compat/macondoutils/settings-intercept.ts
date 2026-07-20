@@ -1,3 +1,24 @@
+function addCheekyLink() {
+    document.getElementById("mb-cheeky-settings-link")?.remove()
+
+    console.log("adding cheeky link")
+    let settingsPanel = document.getElementsByClassName("mu-label-settings-panel")[0]
+    if (!settingsPanel) { console.log("i eat poo");return }
+    console.log("settings panel found")
+
+    let cheekyButton = document.createElement("a")
+    cheekyButton.className = "ds-btn-primary text-xs tm-4 bm-4"
+    cheekyButton.id = "mb-cheeky-settings-link"
+    cheekyButton.href = "/profile#mb_settings"
+    cheekyButton.target = "_blank"
+    cheekyButton.textContent = "Macondo Boringizer Settings"
+
+    settingsPanel.prepend(cheekyButton)
+}
+
+
+
+
 export function fixMUSettings(topbar: Element) {
     let MUsettings = document.getElementById("macondo-utils-project-label-settings")
     if (!MUsettings) { return }
@@ -27,4 +48,6 @@ export function fixMUSettings(topbar: Element) {
     if (docsLink.nextElementSibling !== mount) {
         docsLink.parentElement.insertBefore(mount, docsLink.nextElementSibling)
     }
+
+    addCheekyLink()
 }
