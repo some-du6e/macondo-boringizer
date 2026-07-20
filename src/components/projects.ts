@@ -175,7 +175,7 @@ function projectCard(project: Project) {
     }
     let cardContent = `
   <div
-    class="relative aspect-[16/10] bg-ds-brown/10 overflow-hidden border-b-[3px] border-ds-brown/10">
+    class="relative aspect-16/10 bg-ds-brown/10 overflow-hidden border-b-[3px] border-ds-brown/10">
     ${image}
     <div
       class="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 bg-parchment/95 border-2 border-ds-brown text-xs font-bold text-ds-brown">
@@ -189,7 +189,7 @@ function projectCard(project: Project) {
         stroke-width="2"
         stroke-linecap="round"
         stroke-linejoin="round"
-        class="lucide w-3 h-3 text-ds-danger lucide-flame-icon lucide-flame w-3 h-3 text-ds-danger ${grayedStreak}"
+        class="lucide w-3 h-3 text-ds-danger lucide-flame-icon lucide-flame ${grayedStreak}"
         aria-hidden="true">
         <path
           d="M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4"></path>
@@ -258,7 +258,7 @@ function projectCard(project: Project) {
           stroke-width="2"
           stroke-linecap="round"
           stroke-linejoin="round"
-          class="lucide w-3.5 h-3.5 lucide-chevron-up-icon lucide-chevron-up w-3.5 h-3.5"
+          class="lucide w-3.5 h-3.5 lucide-chevron-up-icon lucide-chevron-up"
           aria-hidden="true">
           <path d="m18 15-6-6-6 6"></path>
         </svg>

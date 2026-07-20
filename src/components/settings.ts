@@ -153,9 +153,9 @@ async function openDelayPopup(secs: number) { // inspired by onesec
     popup.className = "fixed inset-0 z-[201] flex items-center justify-center pointer-events-none"
     popup.innerHTML = `
     <div
-    class="relative pl-5 pt-4 pr-6 flex flex-col modal-frame relative w-full max-w-6xl mx-4 pointer-events-auto max-h-[90vh]">
+    class="relative pl-5 pt-4 pr-6 flex flex-col modal-frame w-full max-w-6xl mx-4 pointer-events-auto max-h-[90vh]">
     <div class="absolute top-2 bottom-2 left-3 right-3 bg-parchment"></div>
-    <div class="relative z-[1] flex-1 min-h-0 w-full  overflow-y-auto">
+    <div class="relative z-1 flex-1 min-h-0 w-full overflow-y-auto">
         <div class="bg-parchment">
             <div
                 class="max-w-6xl mx-auto relative overflow-x-hidden"
@@ -165,46 +165,46 @@ async function openDelayPopup(secs: number) { // inspired by onesec
     </div>
     <img
         src="/images/borders/top_left.webp"
-        class="absolute top-0 left-0 w-24 h-24 pointer-events-none z-[2]"
+        class="absolute top-0 left-0 w-24 h-24 pointer-events-none z-2"
         alt=""
         draggable="false" />
     <img
         src="/images/borders/top_right.webp"
-        class="absolute top-0 right-0 w-24 h-24 pointer-events-none z-[2]"
+        class="absolute top-0 right-0 w-24 h-24 pointer-events-none z-2"
         alt=""
         draggable="false" />
     <img
         src="/images/borders/bottom_left.webp"
-        class="absolute bottom-0 left-0 w-24 h-24 pointer-events-none z-[2]"
+        class="absolute bottom-0 left-0 w-24 h-24 pointer-events-none z-2"
         alt=""
         draggable="false" />
     <img
         src="/images/borders/bottom_right_2.webp"
-        class="absolute bottom-0 right-0 w-24 h-24 pointer-events-none z-[2]"
+        class="absolute bottom-0 right-0 w-24 h-24 pointer-events-none z-2"
         alt=""
         draggable="false" />
     <div
-        class="absolute top-24 left-[8px] bottom-24 w-24 pointer-events-none z-[1]"
+        class="absolute top-24 left-2 bottom-24 w-24 pointer-events-none z-1"
         style="
             background-image: url(&quot;/images/borders/left.webp&quot;);
             background-size: 96px 96px;
             background-repeat: no-repeat round;
         "></div>
     <div
-        class="absolute top-24 right-[8px] bottom-24 w-24 pointer-events-none z-[1]"
+        class="absolute top-24 right-2 bottom-24 w-24 pointer-events-none z-1"
         style="
             background-image: url(&quot;/images/borders/right.webp&quot;);
             background-size: 96px 96px;
             background-repeat: no-repeat round;
         "></div>
     <div
-        class="absolute top-0 left-24 right-24 h-24 pointer-events-none z-[1]"
+        class="absolute top-0 left-24 right-24 h-24 pointer-events-none z-1"
         style="
             background-image: url(&quot;/images/borders/top.webp&quot;);
             background-size: 100% 100%;
         "></div>
     <div
-        class="absolute bottom-0 left-24 right-24 h-24 pointer-events-none z-[1]"
+        class="absolute bottom-0 left-24 right-24 h-24 pointer-events-none z-1"
         style="
             background-image: url(&quot;/images/borders/bottom.webp&quot;);
             background-size: 100% 100%;
