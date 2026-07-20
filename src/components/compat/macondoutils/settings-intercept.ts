@@ -1,5 +1,5 @@
 function addCheekyLink() {
-    document.getElementById("mb-cheeky-settings-link")?.remove()
+    if (document.getElementById("mb-cheeky-settings-link")) { return }
 
     console.log("adding cheeky link")
     let settingsPanel = document.getElementsByClassName("mu-label-settings-panel")[0]
