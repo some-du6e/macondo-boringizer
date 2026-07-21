@@ -19,7 +19,7 @@ type DashboardProjectSyncOptions = {
 }
 
 export function installDashboardProjectSync(options: DashboardProjectSyncOptions) {
-    function removeProjectFromDashboard(projectId: string | number | null | undefined) { // todo: test, i cant rn bc theres nothing to make a new project
+    function removeProjectFromDashboard(projectId: string | number | null | undefined) {
         let normalizedProjectId = String(projectId)
         let oldProjects = options.information.projects || []
         let newProjects = oldProjects.filter(function(project) {

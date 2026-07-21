@@ -173,7 +173,6 @@ function projectCard(project: Project) {
     let projectStatusColor = projectStatus == "In Progress" ? "bg-ds-warning text-ds-brown" : ""
     let projectType = project.type || "software"
     let projectLevel = project.level || "1"
-    let projectVotes = project.votes || project.upvotes || 0
     let projectImage = project.thumbnail_url || project.image || null
     let projectFruit = project.fruit || "Papaya"
     let fruitSlug = convertfruittoshit(String(projectFruit))
@@ -184,7 +183,6 @@ function projectCard(project: Project) {
     projectStatus = escapeHtml(projectStatus)
     projectType = escapeHtml(projectType)
     projectLevel = escapeHtml(projectLevel)
-    projectVotes = escapeHtml(projectVotes)
     projectImage = escapeHtml(projectImage)
     projectStreak = projectStreak == null ? "No" : String(projectStreak) + "d"
     let grayedStreak = projectStreak === "No" ? "grayscale opacity-50" : ""
@@ -278,30 +276,6 @@ function projectCard(project: Project) {
       </div>
     </div>
     <div class="flex items-center justify-between gap-2 mt-auto pt-2 border-t-2 border-ds-brown/10">
-      <!--
-      <button
-        type="button"
-        class="flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold border-2 transition-colors bg-parchment text-ds-brown border-ds-brown/40 hover:border-ds-brown"
-        aria-disabled="false"
-        title="Upvote">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="lucide w-3.5 h-3.5 lucide-chevron-up-icon lucide-chevron-up"
-          aria-hidden="true">
-          <path d="m18 15-6-6-6 6"></path>
-        </svg>
-        <span class="tabular-nums">${projectVotes}</span>
-      </button> TODO: check if project.votes is real or if codex hallucinated it
-
-      --->
       <span class="text-[10px] text-ds-brown/40 uppercase tracking-wider">View project</span>
     </div>
   </div>
@@ -397,8 +371,6 @@ export function renderProjects(information: Information, didLoadProjects: boolea
                 project.has_shipped,
                 project.type,
                 project.level,
-                project.votes,
-                project.upvotes,
                 project.image,
                 project.thumbnail_url,
                 project.fruit,

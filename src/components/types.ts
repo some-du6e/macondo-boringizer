@@ -20,8 +20,6 @@ export type Project = {
     status?: string | null
     type?: string | null
     level?: string | number | null
-    votes?: string | number | null
-    upvotes?: string | number | null
     image?: string | null
     thumbnail_url?: string | null
     pfp?: string | null
@@ -46,7 +44,3 @@ export type GameWorldState = {
     pointerEvents: string
 }
 
-export type Settings = {
-    greyscale: boolean
-    lockshopbehindstreak: boolean // todo: cool but i think its too hard
-}
