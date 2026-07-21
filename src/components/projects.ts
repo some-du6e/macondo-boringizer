@@ -1,6 +1,6 @@
 import type { Project, Information } from "./types"
 import { projectcontextmenu, projectpopup, newprojectpopup } from "./popups"
-import { customProjectsId, placeholderProjects } from "./consts.ts"
+import { customProjectsId } from "./consts.ts"
 
 let renderedProjectsKey = ""
 const projectCardIdAttribute = "data-macondo-project-card-id"
@@ -26,6 +26,42 @@ function newProjectCard() {
         })
         return card
     }
+
+function loadingProjectsCard() {
+    let card = document.createElement("div")
+    card.className = "flex h-full w-full flex-col items-center justify-center gap-4 bg-parchment p-6 text-ds-brown"
+    card.setAttribute("role", "status")
+    card.setAttribute("aria-live", "polite")
+    card.innerHTML = `
+        <style>
+            @keyframes macondo-project-loader-bob {
+                0%, 100% { transform: translate(-50%, 0); }
+                50% { transform: translate(-50%, -8px); }
+            }
+            @keyframes macondo-project-loader-dot {
+                0%, 60%, 100% { opacity: 0.25; transform: translateY(0); }
+                30% { opacity: 1; transform: translateY(-3px); }
+            }
+            @media (prefers-reduced-motion: reduce) {
+                .macondo-project-loader-fruit,
+                .macondo-project-loader-dot { animation: none !important; }
+            }
+        </style>
+        <div class="relative h-28 w-32" aria-hidden="true">
+            <img src="/images/tierra/ground_tile.webp" alt="" class="absolute bottom-0 left-1/2 w-32 -translate-x-1/2 object-contain">
+            <img src="/images/fruits/papaya/etapa_1.webp" alt="" class="macondo-project-loader-fruit absolute bottom-7 left-1/2 h-20 w-20 object-contain" style="animation: macondo-project-loader-bob 1.4s ease-in-out infinite">
+        </div>
+        <div class="text-center">
+            <div class="font-bold uppercase tracking-wider">Loading projects</div>
+            <div class="mt-2 flex justify-center gap-1" aria-hidden="true">
+                <span class="macondo-project-loader-dot h-2 w-2 bg-ds-brown" style="animation: macondo-project-loader-dot 1.2s ease-in-out infinite"></span>
+                <span class="macondo-project-loader-dot h-2 w-2 bg-ds-brown" style="animation: macondo-project-loader-dot 1.2s ease-in-out 0.15s infinite"></span>
+                <span class="macondo-project-loader-dot h-2 w-2 bg-ds-brown" style="animation: macondo-project-loader-dot 1.2s ease-in-out 0.3s infinite"></span>
+            </div>
+        </div>
+    `
+    return card
+}
 
 function convertfruittoshit(fruit: string) {
     // Software
@@ -334,8 +370,23 @@ export function renderProjects(information: Information, didLoadProjects: boolea
         mainContainer.appendChild(projectsContainer)
     }
 
-    let projectsToRender =
-        information.projects.length || didLoadProjects ? information.projects : placeholderProjects
+    if (!didLoadProjects || !document.getElementById("macondo-boringizer-shop-button")) {
+        let loadingKey = "loading"
+        if (renderedProjectsKey === loadingKey && projectsContainer.children.length === 1) {
+            return
+        }
+        renderedProjectsKey = loadingKey
+        projectsContainer.className = "fixed inset-0 flex bg-parchment"
+        projectsContainer.style.zIndex = "200"
+        projectsContainer.replaceChildren(loadingProjectsCard())
+        return
+    }
+
+    projectsContainer.className =
+        "relative mx-4 mt-28 mb-32 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 auto-rows-max gap-4"
+    projectsContainer.style.zIndex = "21"
+
+    let projectsToRender = information.projects
     let projectsKey = projectsToRender
         .map(function (project) {
             return [

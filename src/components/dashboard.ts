@@ -66,6 +66,9 @@ function setupHomepageDashboard() {
     })
 
     function loadInfo() {
+        didLoadProjects = false
+        resetProjectsRenderCache()
+        renderProjects(information, didLoadProjects)
         getInfo(information, function() {
             didLoadProjects = true
             resetProjectsRenderCache()
@@ -119,16 +122,24 @@ function syncDashboard() {
 export function initializeDashboard() {
     interceptTour()
 
+    let dashboardMutationBatches = 0
+    let isDashboardReady = false
+
     window.addEventListener("pageChange", function() {
+        if (!isDashboardReady) { return }
         setTimeout(syncDashboard, 200)
     })
-
-    setTimeout(syncDashboard, 200)
 
     let syncTimeout: ReturnType<typeof setTimeout> | undefined
     window.macondo = window.macondo || {}
     if (!window.macondo.homepagethingObserver) {
         window.macondo.homepagethingObserver = new MutationObserver(function() {
+            if (!isDashboardReady) {
+                dashboardMutationBatches += 1
+                if (dashboardMutationBatches < 3) { return }
+                isDashboardReady = true
+            }
+
             clearTimeout(syncTimeout)
             syncTimeout = setTimeout(syncDashboard, 50)
         })

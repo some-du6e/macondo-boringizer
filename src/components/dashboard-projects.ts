@@ -148,7 +148,6 @@ export function installDashboardProjectSync(options: DashboardProjectSyncOptions
 
         options.state.isWaitingForNewProjectClose = false
         options.state.didSeeNewProjectPopup = false
-        // TODO: show a loading spinner while the project list refreshes.
         options.loadInfo()
     }
 
