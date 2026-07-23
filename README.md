@@ -2,6 +2,7 @@
 <h1><!-- <img src="src/icons/icon32.png" height="30px"> TODO:--> Macondo Boringizer</h1>
 <p>Makes Macondo boring by getting rid of anything jolly</p>
 
+
 ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/some-du6e/macondo-boringizer/total)
 ![GitHub Release](https://img.shields.io/github/v/release/some-du6e/macondo-boringizer)
 ![GitHub License](https://img.shields.io/github/license/some-du6e/macondo-boringizer)
