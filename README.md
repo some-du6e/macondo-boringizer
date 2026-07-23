@@ -1,6 +1,6 @@
 <div align="center" style="text-align: center;">
 <h1><!-- <img src="src/icons/icon32.png" height="30px"> TODO:--> Macondo Boringizer</h1>
-<p>Adds some qol features to <a href="https://game.hackclub.com">HCTG</a> that i would like</p>
+<p>Makes Macondo boring by getting rid of anything jolly</p>
 
 ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/some-du6e/macondo-boringizer/total)
 ![GitHub Release](https://img.shields.io/github/v/release/some-du6e/macondo-boringizer)
