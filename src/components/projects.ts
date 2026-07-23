@@ -209,7 +209,7 @@ function projectCard(project: Project) {
     }
     let cardContent = `
   <div
-    class="relative aspect-16/10 bg-ds-brown/10 overflow-hidden border-b-[3px] border-ds-brown/10">
+    class="relative aspect-[16/10] bg-ds-brown/10 overflow-hidden border-b-[3px] border-ds-brown/10">
     ${image}
     <div
       class="absolute top-2 left-2 flex items-center gap-1 px-2 py-1 bg-parchment/95 border-2 border-ds-brown text-xs font-bold text-ds-brown">
