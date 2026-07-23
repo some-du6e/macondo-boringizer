@@ -279,7 +279,7 @@ function settingsSection() { // copied off the Notification Preferences section 
 
     let sectionDescription = document.createElement("p")
     sectionDescription.className = "text-sm text-ds-brown/70 mb-4"
-    sectionDescription.textContent = "placeholder //todo pls fix"
+    sectionDescription.textContent = "Here you can change the options for the extension!"
 
 
     let settingsTable = document.createElement("table")
