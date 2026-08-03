@@ -1,5 +1,5 @@
 <div align="center" style="text-align: center;">
-<h1><!-- <img src="src/icons/icon32.png" height="30px"> TODO:--> Macondo Boringizer</h1>
+<h1<img src="src/icons/icon32.png" height="30px"> Macondo Boringizer</h1>
 <p>Makes Macondo boring by getting rid of anything jolly</p>
 
 

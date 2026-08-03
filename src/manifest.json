@@ -10,7 +10,7 @@
         }
     },
     "name": "Macondo Boringizer",
-    "description": "Content script example built with TypeScript. Mounts a small UI and uses typed modules.",
+    "description": "Makes macondo all boring by removing all the fun stuff like the farm and stuff",
     "icons": {
         "16": "icons/icon16.png",
         "32": "icons/icon32.png",
