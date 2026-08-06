@@ -95,6 +95,37 @@ jobs:
           bun run build:firefox -- --zip --zip-filename macondoboringizerfirefox
           mv "dist/firefox/macondoboringizerfirefox.zip" "dist/firefox/macondo-boringizer-firefox.zip"
 
+      - name: Build release notes
+        id: release_notes
+        run: |
+          set -euo pipefail
+
+          NEW_TAG="${{ steps.release_meta.outputs.tag }}"
+          REPO="${{ github.repository }}"
+
+          # Find the most recent existing release tag that isn't this one, so
+          # we can diff HEAD from it for the "what changed" list.
+          PREV_TAG=$(git tag --sort=-creatordate | grep -v "^${NEW_TAG}$" | head -1 || true)
+          if [ -z "${PREV_TAG}" ]; then
+            COMMIT_LIST="- (first release)"
+            COMPARE_URL="https://github.com/${REPO}/releases/tag/${NEW_TAG}"
+          else
+            COMMIT_LIST=$(git log --pretty='- %s' "${PREV_TAG}..HEAD" 2>/dev/null \
+              || git log --pretty='- %s' -10)
+            COMPARE_URL="https://github.com/${REPO}/compare/${PREV_TAG}...${NEW_TAG}"
+          fi
+          export COMMIT_LIST COMPARE_URL
+
+          # Substitute the template's two auto-filled lines. We replace the
+          # whole bullet line (including its leading "- ") with the commit
+          # list, since the commits are already "- "-prefixed.
+          cp release-notes.md release-notes-filled.md
+          perl -i -pe 's/^- _auto-filled: commit subjects since last release_$/$ENV{COMMIT_LIST}/' release-notes-filled.md
+          perl -i -pe 's/_auto-filled_/$ENV{COMPARE_URL}/' release-notes-filled.md
+
+          echo "Body preview:"
+          cat release-notes-filled.md
+
       - name: Publish GitHub release
         uses: ncipollo/release-action@v1
         with:
@@ -102,7 +133,7 @@ jobs:
           artifacts: |
             dist/chrome/macondo-boringizer-chrome.zip
             dist/firefox/macondo-boringizer-firefox.zip
-          generateReleaseNotes: true
+          bodyFile: release-notes-filled.md
           makeLatest: ${{ steps.release_meta.outputs.channel == 'stable' && 'true' || 'false' }}
           name: ${{ steps.release_meta.outputs.release_name }}
           prerelease: ${{ steps.release_meta.outputs.prerelease }}
