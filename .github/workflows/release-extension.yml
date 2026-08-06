@@ -116,10 +116,21 @@ jobs:
           fi
           export COMMIT_LIST COMPARE_URL
 
+          # On nightlies, inject a stability warning as the second line
+          # (right under the title). On stable, leave the template as-is.
+          NIGHTLY_WARNING=""
+          if [ "${{ steps.release_meta.outputs.channel }}" = "nightly" ]; then
+            NIGHTLY_WARNING=$'\xE2\x80\xBC\xEF\xB8\x8F **NIGHTLY, MIGHT NOT BE STABLE** \xE2\x80\xBC\xEF\xB8\x8F'
+          fi
+          export NIGHTLY_WARNING
+
           # Substitute the template's two auto-filled lines. We replace the
           # whole bullet line (including its leading "- ") with the commit
           # list, since the commits are already "- "-prefixed.
           cp release-notes.md release-notes-filled.md
+          if [ -n "${NIGHTLY_WARNING}" ]; then
+            perl -i -ple 'if ($.==1 && $ENV{NIGHTLY_WARNING}) { chomp; $_ = "$_\n\n$ENV{NIGHTLY_WARNING}" }' release-notes-filled.md
+          fi
           perl -i -pe 's/^- _auto-filled: commit subjects since last release_$/$ENV{COMMIT_LIST}/' release-notes-filled.md
           perl -i -pe 's/_auto-filled_/$ENV{COMPARE_URL}/' release-notes-filled.md
 
