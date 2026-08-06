@@ -86,10 +86,14 @@ jobs:
           '
 
       - name: Build extension package
-        run: bun run build:chrome -- --zip --zip-filename macondo-boringizer-chrome
+        run: |
+          bun run build:chrome -- --zip --zip-filename macondoboringizerchrome
+          mv "dist/chrome/macondoboringizerchrome.zip" "dist/chrome/macondo-boringizer-chrome.zip"
 
       - name: Build Firefox extension package
-        run: bun run build:firefox -- --zip --zip-filename macondo-boringizer-firefox
+        run: |
+          bun run build:firefox -- --zip --zip-filename macondoboringizerfirefox
+          mv "dist/firefox/macondoboringizerfirefox.zip" "dist/firefox/macondo-boringizer-firefox.zip"
 
       - name: Publish GitHub release
         uses: ncipollo/release-action@v1
