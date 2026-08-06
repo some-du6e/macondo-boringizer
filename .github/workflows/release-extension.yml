@@ -86,18 +86,18 @@ jobs:
           '
 
       - name: Build extension package
-        run: bun run build:chrome -- --zip --zip-filename macondo-boringizer
+        run: bun run build:chrome -- --zip --zip-filename macondo-boringizer-chrome
 
       - name: Build Firefox extension package
-        run: bun run build:firefox -- --zip --zip-filename macondo-boringizer
+        run: bun run build:firefox -- --zip --zip-filename macondo-boringizer-firefox
 
       - name: Publish GitHub release
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
           artifacts: |
-            dist/chrome/macondoboringizer.zip
-            dist/firefox/macondoboringizer.zip
+            dist/chrome/macondo-boringizer-chrome.zip
+            dist/firefox/macondo-boringizer-firefox.zip
           generateReleaseNotes: true
           makeLatest: ${{ steps.release_meta.outputs.channel == 'stable' && 'true' || 'false' }}
           name: ${{ steps.release_meta.outputs.release_name }}
@@ -138,4 +138,4 @@ jobs:
           client_secret: ${{ secrets.CHROME_CLIENT_SECRET }}
           extension_id: ${{ secrets.CHROME_EXTENSION_ID }}
           refresh_token: ${{ secrets.CHROME_REFRESH_TOKEN }}
-          zip_file: dist/chrome/macondoboringizer.zip
+          zip_file: dist/chrome/macondo-boringizer-chrome.zip
