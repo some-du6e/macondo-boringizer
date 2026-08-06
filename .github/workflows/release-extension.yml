@@ -1,4 +1,4 @@
-name: Release Chrome Extension
+name: Release Extension
 
 on:
   workflow_dispatch:
@@ -63,20 +63,74 @@ jobs:
       - name: Check types
         run: bunx tsc --noEmit
 
+      # Stamp a unique version per build so AMO/CWS never reject a re-upload as a
+      # duplicate. `github.run_number` increments every run, so the manifest
+      # version becomes MAJOR.MINOR.<run_number> (e.g. 1.0.517). The build
+      # steps below read this stamped manifest, so both Chrome and Firefox
+      # packages carry the same unique version.
+      - name: Stamp build version
+        id: stamp_version
+        run: |
+          set -euo pipefail
+          export RUN_NUMBER="${{ github.run_number }}"
+          node -e '
+            const fs = require("fs");
+            const p = "src/manifest.json";
+            const m = JSON.parse(fs.readFileSync(p, "utf8"));
+            const base = String(m.version || "1.0.0").split(".");
+            const major = base[0] || "1";
+            const minor = base[1] || "0";
+            m.version = `${major}.${minor}.${process.env.RUN_NUMBER}`;
+            fs.writeFileSync(p, JSON.stringify(m, null, 4) + "\n");
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, `version=${m.version}\n`);
+          '
+
       - name: Build extension package
         run: bun run build:chrome -- --zip --zip-filename macondo-boringizer
+
+      - name: Build Firefox extension package
+        run: bun run build:firefox -- --zip --zip-filename macondo-boringizer
 
       - name: Publish GitHub release
         uses: ncipollo/release-action@v1
         with:
           allowUpdates: true
-          artifacts: dist/chrome/macondoboringizer.zip
+          artifacts: |
+            dist/chrome/macondoboringizer.zip
+            dist/firefox/macondoboringizer.zip
           generateReleaseNotes: true
           makeLatest: ${{ steps.release_meta.outputs.channel == 'stable' && 'true' || 'false' }}
           name: ${{ steps.release_meta.outputs.release_name }}
           prerelease: ${{ steps.release_meta.outputs.prerelease }}
           removeArtifacts: true
           tag: ${{ steps.release_meta.outputs.tag }}
+
+      # Sign the Firefox XPI through AMO. Only runs when a stable build is
+      # being explicitly published (same gate as the Chrome Web Store upload),
+      # so nightly runs don't burn AMO quota. AMO rejects re-signing an
+      # already-uploaded version, so this is best-effort — a failure here must
+      # not fail the whole release.
+      - name: Sign Firefox XPI (AMO)
+        if: ${{ steps.release_meta.outputs.channel == 'stable' && github.event_name == 'workflow_dispatch' && github.event.inputs.publish_to_store == 'true' }}
+        id: sign_xpi
+        continue-on-error: true
+        run: |
+          set -euo pipefail
+          mkdir -p dist/firefox-signed
+          bunx web-ext sign \
+            --source-dir dist/firefox \
+            --artifacts-dir dist/firefox-signed \
+            --api-key "${{ secrets.AMO_API_KEY }}" \
+            --api-secret "${{ secrets.AMO_API_SECRET }}" \
+            --channel listed
+
+      - name: Attach signed XPI to release
+        if: ${{ steps.sign_xpi.outcome == 'success' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh release upload "${{ steps.release_meta.outputs.tag }}" dist/firefox-signed/*.xpi --clobber
 
       - name: Publish to Chrome Web Store
         if: ${{ steps.release_meta.outputs.channel == 'stable' && github.event_name == 'workflow_dispatch' && github.event.inputs.publish_to_store == 'true' }}
