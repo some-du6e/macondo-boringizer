@@ -105,15 +105,12 @@ jobs:
           removeArtifacts: true
           tag: ${{ steps.release_meta.outputs.tag }}
 
-      # Sign the Firefox XPI through AMO. Only runs when a stable build is
-      # being explicitly published (same gate as the Chrome Web Store upload),
-      # so nightly runs don't burn AMO quota. AMO rejects re-signing an
-      # already-uploaded version, so this is best-effort — a failure here must
-      # not fail the whole release.
+      # Sign the Firefox XPI through AMO on every release, as its own .xpi file.
+      # `--channel unlisted` so nightly self-distribution doesn't need AMO
+      # review. web-ext names the output .xpi from the manifest version, so
+      # it's unique per build (e.g. macondo_boringizer-1.0.517.xpi).
       - name: Sign Firefox XPI (AMO)
-        if: ${{ steps.release_meta.outputs.channel == 'stable' && github.event_name == 'workflow_dispatch' && github.event.inputs.publish_to_store == 'true' }}
         id: sign_xpi
-        continue-on-error: true
         run: |
           set -euo pipefail
           mkdir -p dist/firefox-signed
@@ -122,7 +119,7 @@ jobs:
             --artifacts-dir dist/firefox-signed \
             --api-key "${{ secrets.AMO_API_KEY }}" \
             --api-secret "${{ secrets.AMO_API_SECRET }}" \
-            --channel listed
+            --channel unlisted
 
       - name: Attach signed XPI to release
         if: ${{ steps.sign_xpi.outcome == 'success' }}
